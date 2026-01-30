@@ -663,7 +663,7 @@ function printSingleSlip(index) {
     printContent(html);
 }
 
-// Bulk Print Selected Slips - Courier-specific
+// Bulk Print Selected Slips - Courier-specific (All in One PDF)
 function printSelectedSlips() {
     const checkboxes = document.querySelectorAll('.order-checkbox:checked');
     if (checkboxes.length === 0) {
@@ -723,30 +723,25 @@ function printSelectedSlips() {
         
         poHTML += `</body></html>`;
         printContent(poHTML);
-        
-        if (poOrders.length > 0) {
-            UI.showToast(`Printing ${poOrders.length} Post Office slips...`, 'success');
-        }
+        UI.showToast(`Printing ${poOrders.length} Post Office slips...`, 'success');
     }
     
-    // Print Leopards RS slips (1 per page)
+    // Print Leopards RS slips - ALL IN ONE PDF
     if (rsOrders.length > 0) {
+        const rsHTML = generateBulkLeopardsSlips(rsOrders, 'rs');
         setTimeout(() => {
-            rsOrders.forEach((idx, i) => {
-                setTimeout(() => printLeopardsRS(idx), i * 1000);
-            });
+            printContent(rsHTML);
             UI.showToast(`Printing ${rsOrders.length} Leopards RS slips...`, 'success');
-        }, 1000);
+        }, poOrders.length > 0 ? 1000 : 0);
     }
     
-    // Print Leopards Bridge slips (1 per page)
+    // Print Leopards Bridge slips - ALL IN ONE PDF
     if (bridgeOrders.length > 0) {
+        const bridgeHTML = generateBulkLeopardsSlips(bridgeOrders, 'bridge');
         setTimeout(() => {
-            bridgeOrders.forEach((idx, i) => {
-                setTimeout(() => printLeopardsBridge(idx), i * 1000);
-            });
+            printContent(bridgeHTML);
             UI.showToast(`Printing ${bridgeOrders.length} Leopards Bridge slips...`, 'success');
-        }, 2000 + rsOrders.length * 1000);
+        }, (poOrders.length > 0 ? 1000 : 0) + (rsOrders.length > 0 ? 1000 : 0));
     }
     
     // Print TCS slips
@@ -758,6 +753,250 @@ function printSelectedSlips() {
     if (poOrders.length === 0 && rsOrders.length === 0 && bridgeOrders.length === 0) {
         UI.showToast('No supported courier slips to print', 'warning');
     }
+}
+
+// Generate Bulk Leopards Slips (RS or Bridge) - All in One PDF
+function generateBulkLeopardsSlips(orderIndexes, type) {
+    const today = new Date().toLocaleDateString('en-GB');
+    
+    let html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            @page { size: A4; margin: 5mm; }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: Arial, sans-serif; font-size: 11px; background: white; }
+            
+            .slip-page { 
+                width: 100%; 
+                max-width: 750px; 
+                margin: 0 auto 10mm; 
+                border: 2px solid #333; 
+                background: #fff;
+                page-break-inside: avoid;
+                page-break-after: always;
+            }
+            .slip-page:last-child { page-break-after: auto; }
+            
+            /* Header Section */
+            .header { display: flex; border-bottom: 2px solid #333; }
+            
+            .logo-box { 
+                width: 85px; padding: 8px; border-right: 1px solid #ccc; 
+                display: flex; flex-direction: column; justify-content: center; align-items: center;
+            }
+            .rs-text { font-family: 'Times New Roman', serif; font-size: 36px; font-weight: bold; color: #1a3a5c; }
+            .logistics { font-size: 12px; color: #1a3a5c; font-style: italic; }
+            .bridge-text { font-family: 'Segoe UI', sans-serif; font-size: 24px; font-weight: bold; font-style: italic; }
+            .bridge-line { width: 50px; height: 2px; background: #000; transform: rotate(-25deg); margin-bottom: 5px; }
+            .bridge-tagline { font-size: 7px; letter-spacing: 2px; border-top: 1px solid #000; padding-top: 2px; }
+            
+            .barcode-box { flex: 1; padding: 8px; border-right: 1px solid #ccc; position: relative; text-align: center; }
+            .color-stripes { position: absolute; left: 0; top: 0; bottom: 0; width: 30px; display: flex; }
+            .color-stripes div { flex: 1; }
+            .barcode-text { font-family: monospace; font-size: 35px; letter-spacing: -2px; margin-left: 30px; }
+            .tracking { font-size: 12px; font-weight: bold; margin-top: 3px; }
+            
+            .info-grid { display: flex; flex-wrap: wrap; width: 280px; }
+            .info-cell { width: 50%; padding: 4px 8px; border: 1px solid #ccc; background: #f9f9f9; }
+            .info-label { font-size: 9px; color: #666; }
+            .info-value { font-size: 11px; font-weight: bold; }
+            
+            .content { display: flex; }
+            .shipper-section, .consignee-section { flex: 1; }
+            .shipper-section { border-right: 1px solid #333; }
+            
+            .section-title { background: #e5e5e5; padding: 5px 10px; font-weight: bold; text-align: center; border-bottom: 1px solid #999; }
+            
+            .detail-row { display: flex; border-bottom: 1px solid #ccc; min-height: 28px; }
+            .detail-label { width: 100px; padding: 5px 8px; background: #fafafa; font-weight: bold; font-size: 10px; border-right: 1px solid #ccc; }
+            .detail-value { flex: 1; padding: 5px 8px; font-size: 11px; }
+            
+            .ref-row { display: flex; border-bottom: 1px solid #333; }
+            .ref-cell { flex: 1; padding: 5px 8px; border-right: 1px solid #ccc; font-weight: bold; font-size: 10px; }
+            .ref-cell:last-child { border-right: none; }
+            .amount { font-size: 18px; font-weight: bold; color: #c00; }
+            
+            .product-row { display: flex; border-bottom: 1px solid #ccc; }
+            
+            .bottom-section { display: flex; border-bottom: 1px solid #333; }
+            .instruction-section { flex: 1; }
+            .branding-section { width: 150px; padding: 8px; text-align: center; border-left: 1px solid #ccc; }
+            .leopards-text { font-family: 'Brush Script MT', cursive; font-size: 22px; color: #b8860b; font-style: italic; }
+            .leopards-tagline { font-size: 9px; color: #666; }
+            
+            .footer { padding: 8px; text-align: center; color: #c00; font-size: 11px; font-weight: bold; }
+            .urdu { direction: rtl; text-align: right; }
+        </style>
+    </head>
+    <body>`;
+    
+    orderIndexes.forEach(idx => {
+        const d = allOrders[idx];
+        const trackingNo = 'MG' + Date.now().toString().slice(-10) + idx;
+        const orderDate = d.date ? UI.formatDate(d.date) : today;
+        
+        if (type === 'rs') {
+            html += `
+            <div class="slip-page">
+                <div class="header">
+                    <div class="logo-box">
+                        <div class="rs-text">R&S</div>
+                        <div class="logistics">logistics</div>
+                    </div>
+                    <div class="barcode-box">
+                        <div class="color-stripes">
+                            <div style="background: #e53935;"></div>
+                            <div style="background: #fb8c00;"></div>
+                            <div style="background: #fdd835;"></div>
+                            <div style="background: #43a047;"></div>
+                            <div style="background: #1e88e5;"></div>
+                            <div style="background: #5e35b1;"></div>
+                        </div>
+                        <div class="barcode-text">|||||||||||||||||||||||||</div>
+                        <div class="tracking">${trackingNo}</div>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-cell"><div class="info-label">Date</div><div class="info-value">${orderDate}</div></div>
+                        <div class="info-cell"><div class="info-label">Weight:</div><div class="info-value">2 Kg</div></div>
+                        <div class="info-cell"><div class="info-label">Services</div><div class="info-value">Overnight</div></div>
+                        <div class="info-cell"><div class="info-label">Booking Type:</div><div class="info-value">Invoice</div></div>
+                        <div class="info-cell"><div class="info-label">Origin</div><div class="info-value">Muzaffargarh</div></div>
+                        <div class="info-cell"><div class="info-label">Destination</div><div class="info-value">${d.city || '---'}</div></div>
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="shipper-section">
+                        <div class="section-title">Shipper</div>
+                        <div class="detail-row"><div class="detail-label">Company:</div><div class="detail-value">EASY SHOPPING ZONE BY PURE LIFE FAMILY CARE</div></div>
+                        <div class="detail-row"><div class="detail-label">Phone No:</div><div class="detail-value">03147686866</div></div>
+                        <div class="detail-row"><div class="detail-label">Pickup/Return Address:</div><div class="detail-value">SHOP NO.2, AL SAEED MARKET KHAN..MUZAFFARGARH</div></div>
+                    </div>
+                    <div class="consignee-section">
+                        <div class="section-title">Consignee</div>
+                        <div class="detail-row"><div class="detail-label">Name:</div><div class="detail-value">${d.customer}</div></div>
+                        <div class="detail-row"><div class="detail-label">Phone No:</div><div class="detail-value">${d.mobile}</div></div>
+                        <div class="detail-row"><div class="detail-label">Address:</div><div class="detail-value urdu">${d.address}</div></div>
+                    </div>
+                </div>
+                <div class="ref-row">
+                    <div class="ref-cell">Reference No. #</div>
+                    <div class="ref-cell">Order ID:</div>
+                    <div class="ref-cell">COD Amount</div>
+                    <div class="ref-cell"><span class="amount">Rs: ${d.price || '0'}.00</span></div>
+                </div>
+                <div class="product-row">
+                    <div class="detail-label">Product Description:</div>
+                    <div class="detail-value">${d.product || 'RBC-500'}</div>
+                </div>
+                <div class="bottom-section">
+                    <div class="instruction-section">
+                        <div class="detail-row" style="border-bottom: none;">
+                            <div class="detail-label">Special Instruction</div>
+                            <div class="detail-value">${d.notes || ''}</div>
+                        </div>
+                    </div>
+                    <div class="branding-section">
+                        <div class="leopards-text">Leopards</div>
+                        <div class="leopards-tagline">There for You</div>
+                        <svg viewBox="0 0 80 80" width="55" height="55" style="margin-top: 5px;">
+                            <rect x="0" y="0" width="80" height="80" fill="white"/>
+                            <rect x="5" y="5" width="22" height="22" fill="black"/>
+                            <rect x="53" y="5" width="22" height="22" fill="black"/>
+                            <rect x="5" y="53" width="22" height="22" fill="black"/>
+                            <rect x="9" y="9" width="14" height="14" fill="white"/>
+                            <rect x="57" y="9" width="14" height="14" fill="white"/>
+                            <rect x="9" y="57" width="14" height="14" fill="white"/>
+                            <rect x="12" y="12" width="8" height="8" fill="black"/>
+                            <rect x="60" y="12" width="8" height="8" fill="black"/>
+                            <rect x="12" y="60" width="8" height="8" fill="black"/>
+                            <rect x="32" y="32" width="16" height="16" fill="black"/>
+                            <rect x="36" y="36" width="8" height="8" fill="white"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="footer">In case of any complaint or replacement please call at Shipper Number mentioned above.</div>
+            </div>`;
+        } else {
+            // Bridge slip
+            html += `
+            <div class="slip-page">
+                <div class="header">
+                    <div class="logo-box">
+                        <div class="bridge-line"></div>
+                        <div class="bridge-text">Bridge</div>
+                        <div class="bridge-tagline">TOWARDS FUTURE</div>
+                    </div>
+                    <div class="barcode-box">
+                        <div class="barcode-text">|||||||||||||||||||||||||</div>
+                        <div class="tracking">${trackingNo}</div>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-cell"><div class="info-label">Date</div><div class="info-value">${orderDate}</div></div>
+                        <div class="info-cell"><div class="info-label">Weight:</div><div class="info-value">0.5 Kg</div></div>
+                        <div class="info-cell"><div class="info-label">Services</div><div class="info-value">Overnight</div></div>
+                        <div class="info-cell"><div class="info-label">Booking Type:</div><div class="info-value">Invoice</div></div>
+                        <div class="info-cell"><div class="info-label">Origin</div><div class="info-value">Muzaffargarh</div></div>
+                        <div class="info-cell"><div class="info-label">Destination</div><div class="info-value">${d.city || '---'}</div></div>
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="shipper-section">
+                        <div class="section-title">Shipper</div>
+                        <div class="detail-row"><div class="detail-label">Company:</div><div class="detail-value">EASY SHOPPING ZONE KHAN GARH</div></div>
+                        <div class="detail-row"><div class="detail-label">Phone No:</div><div class="detail-value">0311-7686862</div></div>
+                        <div class="detail-row"><div class="detail-label">Pickup Address:</div><div class="detail-value">NEAR HBL BANK KHAN GARH (MUZAFFARGARH)</div></div>
+                    </div>
+                    <div class="consignee-section">
+                        <div class="section-title">Consignee</div>
+                        <div class="detail-row"><div class="detail-label">Name:</div><div class="detail-value">${d.customer}</div></div>
+                        <div class="detail-row"><div class="detail-label">Phone No:</div><div class="detail-value">${d.mobile}</div></div>
+                        <div class="detail-row"><div class="detail-label">Address:</div><div class="detail-value urdu">${d.address}</div></div>
+                    </div>
+                </div>
+                <div class="ref-row">
+                    <div class="ref-cell">Reference No. #</div>
+                    <div class="ref-cell">Order ID:</div>
+                    <div class="ref-cell">COD Amount</div>
+                    <div class="ref-cell"><span class="amount" style="color: #006600;">Rs: ${d.price || '0'}.00</span></div>
+                </div>
+                <div class="product-row">
+                    <div class="detail-label">Product Description:</div>
+                    <div class="detail-value">${d.product || 'RBC-10'}</div>
+                </div>
+                <div class="bottom-section">
+                    <div class="instruction-section">
+                        <div class="detail-row" style="border-bottom: none;">
+                            <div class="detail-label">Special Instruction</div>
+                            <div class="detail-value">${d.notes || ''}</div>
+                        </div>
+                    </div>
+                    <div class="branding-section">
+                        <svg viewBox="0 0 80 80" width="60" height="60">
+                            <rect x="0" y="0" width="80" height="80" fill="white"/>
+                            <rect x="5" y="5" width="22" height="22" fill="black"/>
+                            <rect x="53" y="5" width="22" height="22" fill="black"/>
+                            <rect x="5" y="53" width="22" height="22" fill="black"/>
+                            <rect x="9" y="9" width="14" height="14" fill="white"/>
+                            <rect x="57" y="9" width="14" height="14" fill="white"/>
+                            <rect x="9" y="57" width="14" height="14" fill="white"/>
+                            <rect x="12" y="12" width="8" height="8" fill="black"/>
+                            <rect x="60" y="12" width="8" height="8" fill="black"/>
+                            <rect x="12" y="60" width="8" height="8" fill="black"/>
+                            <rect x="32" y="32" width="16" height="16" fill="black"/>
+                            <rect x="36" y="36" width="8" height="8" fill="white"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="footer">In case of any complaint or replacement please call at Shipper Number mentioned above.</div>
+            </div>`;
+        }
+    });
+    
+    html += `</body></html>`;
+    return html;
 }
 
 // Number to Urdu Words
