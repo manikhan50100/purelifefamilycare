@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - PureLife Family Care</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>PureLife</h1>
+                    <span>Order Management</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="dashboard.html" class="nav-item">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="booking.html" class="nav-item">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>New Booking</span>
+                    </a>
+                    <a href="orders.html" class="nav-item">
+                        <i class="fas fa-box-open"></i>
+                        <span>Orders</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="products.html" class="nav-item">
+                        <i class="fas fa-tags"></i>
+                        <span>Products</span>
+                    </a>
+                    <a href="customers.html" class="nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>Customers</span>
+                    </a>
+                    <a href="reports.html" class="nav-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="settings.html" class="nav-item active">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-card" onclick="Auth.logout()">
+                    <div class="user-avatar">LA</div>
+                    <div class="user-info">
+                        <h4>Liaqat Ali</h4>
+                        <span>Admin</span>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="color: rgba(255,255,255,0.5); margin-left: auto;"></i>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="page-title">
+                        <h2>Settings</h2>
+                        <span>Manage your account and preferences</span>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <div class="content">
+                <div style="max-width: 900px; margin: 0 auto;">
+                    <!-- Profile Settings -->
+                    <div class="card mb-2 animate-slideUp">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-user-circle"></i>
+                                Profile Settings
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="display: flex; gap: 30px; align-items: flex-start;">
+                                <div style="text-align: center;">
+                                    <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; color: white; font-weight: 700; margin-bottom: 15px;">
+                                        LA
+                                    </div>
+                                    <button class="btn btn-sm btn-light">
+                                        <i class="fas fa-camera"></i> Change Photo
+                                    </button>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Full Name</label>
+                                            <input type="text" class="form-control" value="Liaqat Ali">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control" value="admin@easyshoppingzone.com">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Phone</label>
+                                            <input type="tel" class="form-control" value="0311-7686862">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Role</label>
+                                            <input type="text" class="form-control" value="Administrator" readonly style="background: var(--gray-100);">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Business Settings -->
+                    <div class="card mb-2 animate-slideUp" style="animation-delay: 0.1s">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-store"></i>
+                                Business Information
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Business Name</label>
+                                    <input type="text" class="form-control" value="Easy Shopping Zone">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">CNIC</label>
+                                    <input type="text" class="form-control" value="35301-4550279-7">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Business Address</label>
+                                <textarea class="form-control" rows="2">Post Office Khan Garh District Muzaffargarh, Postal Code: 34350</textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Primary Phone</label>
+                                    <input type="tel" class="form-control" value="0311-7686862">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Secondary Phone</label>
+                                    <input type="tel" class="form-control" value="0335-6352625">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Shipping Settings -->
+                    <div class="card mb-2 animate-slideUp" style="animation-delay: 0.2s">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-shipping-fast"></i>
+                                Shipping Settings
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Default Courier</label>
+                                    <select class="form-control">
+                                        <option selected>Post Office (VPL)</option>
+                                        <option>TCS</option>
+                                        <option>Leopards</option>
+                                        <option>M&P</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Shipping Fee (Rs.)</label>
+                                    <input type="number" class="form-control" value="75">
+                                </div>
+                            </div>
+                            
+                            <h4 style="font-size: 14px; font-weight: 600; color: var(--dark-700); margin: 20px 0 15px;">Courier Services</h4>
+                            
+                            <div style="display: grid; gap: 12px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--gray-50); border-radius: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 40px; height: 40px; background: var(--primary-50); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-mail-bulk" style="color: var(--primary);"></i>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600;">Post Office (VPL)</div>
+                                            <div style="font-size: 12px; color: var(--gray-500);">Cheapest option for rural areas</div>
+                                        </div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--gray-50); border-radius: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 40px; height: 40px; background: rgba(245, 158, 11, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-shipping-fast" style="color: var(--accent-orange);"></i>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600;">TCS</div>
+                                            <div style="font-size: 12px; color: var(--gray-500);">Fast delivery for urban areas</div>
+                                        </div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Print Settings -->
+                    <div class="card mb-2 animate-slideUp" style="animation-delay: 0.3s">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-print"></i>
+                                Print Settings
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Slips per Page</label>
+                                    <select class="form-control">
+                                        <option>1 Slip</option>
+                                        <option>2 Slips</option>
+                                        <option selected>4 Slips</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Paper Size</label>
+                                    <select class="form-control">
+                                        <option selected>A4 Landscape</option>
+                                        <option>A4 Portrait</option>
+                                        <option>Letter</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 15px; margin-top: 15px;">
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                    <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+                                    <span>Show Logo on Slips</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                    <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+                                    <span>Show CNIC on Slips</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- API Settings -->
+                    <div class="card mb-2 animate-slideUp" style="animation-delay: 0.4s">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-code"></i>
+                                API Configuration
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">Google Sheets API URL</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="apiUrl" value="https://script.google.com/macros/s/AKfycbxHbQ8BgAgO9Z2shzYeeC9ZxCXvHhsLqG6e06S1Rps47ZHWOOg5AoOAyQuouQBvs5mU/exec" style="font-family: monospace; font-size: 12px;">
+                                    <i class="fas fa-link"></i>
+                                </div>
+                                <small style="color: var(--gray-500); display: block; margin-top: 8px;">
+                                    <i class="fas fa-info-circle"></i> This is your Google Apps Script Web App URL for data storage
+                                </small>
+                            </div>
+                            
+                            <button class="btn btn-light" onclick="testConnection()">
+                                <i class="fas fa-plug"></i> Test Connection
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Settings -->
+                    <div class="card mb-2 animate-slideUp" style="animation-delay: 0.5s">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-shield-alt"></i>
+                                Security
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" class="form-control" placeholder="••••••••">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" class="form-control" placeholder="••••••••">
+                                </div>
+                            </div>
+                            <button class="btn btn-outline">
+                                <i class="fas fa-key"></i> Change Password
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Save Button -->
+                    <div style="display: flex; justify-content: flex-end; gap: 15px; padding: 20px 0;">
+                        <button class="btn btn-light">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button class="btn btn-primary btn-lg" onclick="saveSettings()">
+                            <i class="fas fa-save"></i> Save All Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="toastContainer" class="toast-container"></div>
+    
+    <style>
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray-300);
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        input:checked + .slider {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+    </style>
+    
+    <script src="js/app.js"></script>
+    <script>
+        // Check auth
+        if (!Auth.isLoggedIn()) {
+            window.location.href = 'index.html';
+        }
+        
+        function testConnection() {
+            UI.showToast('Testing connection...', 'info');
+            
+            setTimeout(() => {
+                UI.showToast('Connection successful!', 'success');
+            }, 1500);
+        }
+        
+        function saveSettings() {
+            UI.showToast('Settings saved successfully!', 'success');
+        }
+    </script>
+</body>
+</html>

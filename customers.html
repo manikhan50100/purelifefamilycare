@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers - PureLife Family Care</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>PureLife</h1>
+                    <span>Order Management</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="dashboard.html" class="nav-item">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="booking.html" class="nav-item">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>New Booking</span>
+                    </a>
+                    <a href="orders.html" class="nav-item">
+                        <i class="fas fa-box-open"></i>
+                        <span>Orders</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="products.html" class="nav-item">
+                        <i class="fas fa-tags"></i>
+                        <span>Products</span>
+                    </a>
+                    <a href="customers.html" class="nav-item active">
+                        <i class="fas fa-users"></i>
+                        <span>Customers</span>
+                    </a>
+                    <a href="reports.html" class="nav-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="settings.html" class="nav-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-card" onclick="Auth.logout()">
+                    <div class="user-avatar">LA</div>
+                    <div class="user-info">
+                        <h4>Liaqat Ali</h4>
+                        <span>Admin</span>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="color: rgba(255,255,255,0.5); margin-left: auto;"></i>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="page-title">
+                        <h2>Customers</h2>
+                        <span>View and manage your customer base</span>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="search-box">
+                        <input type="text" id="customerSearch" placeholder="Search customers..." onkeyup="searchCustomers()">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- Stats -->
+                <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="stat-card primary animate-slideUp">
+                        <div class="stat-header">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        </div>
+                        <div class="stat-value" id="totalCustomers">0</div>
+                        <div class="stat-label">Total Customers</div>
+                    </div>
+                    
+                    <div class="stat-card secondary animate-slideUp" style="animation-delay: 0.1s">
+                        <div class="stat-header">
+                            <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
+                        </div>
+                        <div class="stat-value" id="newCustomers">0</div>
+                        <div class="stat-label">New This Month</div>
+                    </div>
+                    
+                    <div class="stat-card warning animate-slideUp" style="animation-delay: 0.2s">
+                        <div class="stat-header">
+                            <div class="stat-icon"><i class="fas fa-redo"></i></div>
+                        </div>
+                        <div class="stat-value" id="repeatCustomers">0</div>
+                        <div class="stat-label">Repeat Customers</div>
+                    </div>
+                    
+                    <div class="stat-card danger animate-slideUp" style="animation-delay: 0.3s">
+                        <div class="stat-header">
+                            <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        </div>
+                        <div class="stat-value" id="cities">0</div>
+                        <div class="stat-label">Cities Served</div>
+                    </div>
+                </div>
+                
+                <!-- Customers Table -->
+                <div class="card animate-slideUp" style="animation-delay: 0.4s">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-address-book"></i>
+                            Customer Directory
+                        </h3>
+                        <button class="btn btn-sm btn-light" onclick="exportCustomers()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Mobile</th>
+                                        <th>Location</th>
+                                        <th>Orders</th>
+                                        <th>Total Spent</th>
+                                        <th>Last Order</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customersTableBody">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 60px 20px;">
+                                            <div class="spinner"></div>
+                                            <p style="margin-top: 15px; color: var(--gray-500);">Loading customers...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="toastContainer" class="toast-container"></div>
+    
+    <script src="js/app.js"></script>
+    <script>
+        // Check auth
+        if (!Auth.isLoggedIn()) {
+            window.location.href = 'index.html';
+        }
+        
+        let customers = [];
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const orders = await DataService.fetchOrders();
+            processCustomers(orders);
+        });
+        
+        function processCustomers(orders) {
+            // Group orders by customer
+            const customerMap = {};
+            
+            orders.forEach(order => {
+                const key = order.mobile || order.customer;
+                if (!customerMap[key]) {
+                    customerMap[key] = {
+                        name: order.customer,
+                        mobile: order.mobile,
+                        address: order.address,
+                        orders: [],
+                        totalSpent: 0
+                    };
+                }
+                customerMap[key].orders.push(order);
+                customerMap[key].totalSpent += order.price;
+            });
+            
+            customers = Object.values(customerMap);
+            
+            // Update stats
+            document.getElementById('totalCustomers').textContent = customers.length;
+            document.getElementById('repeatCustomers').textContent = customers.filter(c => c.orders.length > 1).length;
+            
+            // Extract unique cities
+            const cities = new Set();
+            orders.forEach(o => {
+                const addr = o.address || '';
+                // Try to extract city from address
+                const parts = addr.split(',');
+                if (parts.length > 1) {
+                    cities.add(parts[parts.length - 1].trim());
+                }
+            });
+            document.getElementById('cities').textContent = cities.size || customers.length;
+            
+            renderCustomers(customers);
+        }
+        
+        function renderCustomers(data) {
+            const tbody = document.getElementById('customersTableBody');
+            
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 60px 20px;">
+                            <i class="fas fa-users" style="font-size: 48px; color: var(--gray-300);"></i>
+                            <p style="margin-top: 15px; color: var(--gray-500);">No customers found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = data.map(customer => {
+                const lastOrder = customer.orders[customer.orders.length - 1];
+                const location = (customer.address || '').split(',').slice(-2).join(', ').trim() || '-';
+                
+                return `
+                <tr>
+                    <td>
+                        <div class="customer-cell">
+                            <div class="customer-avatar" style="background: ${UI.getAvatarColor(customer.name)}">
+                                ${UI.getInitials(customer.name)}
+                            </div>
+                            <div class="customer-info">
+                                <strong>${customer.name}</strong>
+                            </div>
+                        </div>
+                    </td>
+                    <td><i class="fas fa-phone" style="color: var(--gray-400); margin-right: 8px;"></i>${customer.mobile || '-'}</td>
+                    <td><i class="fas fa-map-marker-alt" style="color: var(--gray-400); margin-right: 8px;"></i>${location}</td>
+                    <td><span class="badge badge-primary">${customer.orders.length}</span></td>
+                    <td class="amount">${UI.formatCurrency(customer.totalSpent)}</td>
+                    <td>${UI.formatDate(lastOrder?.date)}</td>
+                </tr>
+                `;
+            }).join('');
+        }
+        
+        function searchCustomers() {
+            const term = document.getElementById('customerSearch').value.toLowerCase();
+            const filtered = customers.filter(c => 
+                (c.name || '').toLowerCase().includes(term) ||
+                (c.mobile || '').includes(term)
+            );
+            renderCustomers(filtered);
+        }
+        
+        function exportCustomers() {
+            UI.showToast('Export feature coming soon!', 'info');
+        }
+    </script>
+</body>
+</html>

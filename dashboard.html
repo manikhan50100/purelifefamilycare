@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - PureLife Family Care</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>PureLife</h1>
+                    <span>Order Management</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="dashboard.html" class="nav-item active">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="booking.html" class="nav-item">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>New Booking</span>
+                    </a>
+                    <a href="orders.html" class="nav-item">
+                        <i class="fas fa-box-open"></i>
+                        <span>Orders</span>
+                        <span class="nav-badge" id="ordersBadge">0</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="products.html" class="nav-item">
+                        <i class="fas fa-tags"></i>
+                        <span>Products</span>
+                    </a>
+                    <a href="customers.html" class="nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>Customers</span>
+                    </a>
+                    <a href="reports.html" class="nav-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="settings.html" class="nav-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-card" onclick="Auth.logout()">
+                    <div class="user-avatar">LA</div>
+                    <div class="user-info">
+                        <h4>Liaqat Ali</h4>
+                        <span>Admin</span>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="color: rgba(255,255,255,0.5); margin-left: auto;"></i>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="page-title">
+                        <h2>Dashboard</h2>
+                        <span>Welcome back! Here's your business overview</span>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search orders, customers...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <button class="header-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="header-icon">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card primary animate-slideUp" style="animation-delay: 0.1s">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="stat-trend up">
+                                <i class="fas fa-arrow-up"></i> 12%
+                            </div>
+                        </div>
+                        <div class="stat-value" id="totalOrders">0</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                    
+                    <div class="stat-card secondary animate-slideUp" style="animation-delay: 0.2s">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="stat-trend up">
+                                <i class="fas fa-arrow-up"></i> 8%
+                            </div>
+                        </div>
+                        <div class="stat-value" id="totalRevenue">Rs. 0</div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                    
+                    <div class="stat-card warning animate-slideUp" style="animation-delay: 0.3s">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="stat-trend down">
+                                <i class="fas fa-arrow-down"></i> 3%
+                            </div>
+                        </div>
+                        <div class="stat-value" id="todayOrders">0</div>
+                        <div class="stat-label">Today's Orders</div>
+                    </div>
+                    
+                    <div class="stat-card danger animate-slideUp" style="animation-delay: 0.4s">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-trend up">
+                                <i class="fas fa-arrow-up"></i> 5%
+                            </div>
+                        </div>
+                        <div class="stat-value" id="avgOrderValue">Rs. 0</div>
+                        <div class="stat-label">Average Order Value</div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="card mb-3 animate-slideUp" style="animation-delay: 0.5s">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-bolt"></i>
+                            Quick Actions
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="btn-group" style="flex-wrap: wrap;">
+                            <a href="booking.html" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> New Booking
+                            </a>
+                            <a href="orders.html" class="btn btn-secondary">
+                                <i class="fas fa-list"></i> View All Orders
+                            </a>
+                            <a href="reports.html" class="btn btn-outline">
+                                <i class="fas fa-download"></i> Download Report
+                            </a>
+                            <button class="btn btn-light" onclick="DataService.fetchOrders().then(() => { updateDashboardStats(); UI.showToast('Data refreshed!', 'success'); })">
+                                <i class="fas fa-sync"></i> Refresh Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Orders & Chart Row -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+                    <!-- Recent Orders -->
+                    <div class="card animate-slideUp" style="animation-delay: 0.6s">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-clock"></i>
+                                Recent Orders
+                            </h3>
+                            <a href="orders.html" class="btn btn-sm btn-light">View All</a>
+                        </div>
+                        <div class="card-body" style="padding: 0;">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Order</th>
+                                            <th>Customer</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentOrdersBody">
+                                        <tr>
+                                            <td colspan="4" style="text-align: center; padding: 40px;">
+                                                <div class="spinner"></div>
+                                                <p style="margin-top: 15px; color: var(--gray-500);">Loading orders...</p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Courier Stats -->
+                    <div class="card animate-slideUp" style="animation-delay: 0.7s">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-truck"></i>
+                                Courier Stats
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="courierStats">
+                                <div style="display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--gray-200);">
+                                    <div style="width: 45px; height: 45px; background: rgba(99, 102, 241, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-mail-bulk" style="color: var(--primary);"></i>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; color: var(--dark);">Post Office (VPL)</div>
+                                        <div style="font-size: 12px; color: var(--gray-500);">Most used courier</div>
+                                    </div>
+                                    <span class="badge badge-primary" id="poCount">0</span>
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; gap: 15px; padding: 15px 0;">
+                                    <div style="width: 45px; height: 45px; background: rgba(245, 158, 11, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-shipping-fast" style="color: var(--accent-orange);"></i>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; color: var(--dark);">TCS</div>
+                                        <div style="font-size: 12px; color: var(--gray-500);">Express delivery</div>
+                                    </div>
+                                    <span class="badge badge-warning" id="tcsCount">0</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--gray-200);">
+                                <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 10px;">Performance</div>
+                                <div style="display: flex; gap: 10px;">
+                                    <div style="flex: 1; background: var(--gray-100); border-radius: 8px; padding: 12px; text-align: center;">
+                                        <div style="font-size: 20px; font-weight: 700; color: var(--secondary);">98%</div>
+                                        <div style="font-size: 11px; color: var(--gray-500);">Delivery Rate</div>
+                                    </div>
+                                    <div style="flex: 1; background: var(--gray-100); border-radius: 8px; padding: 12px; text-align: center;">
+                                        <div style="font-size: 20px; font-weight: 700; color: var(--primary);">2.5</div>
+                                        <div style="font-size: 11px; color: var(--gray-500);">Avg Days</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="toastContainer" class="toast-container"></div>
+    
+    <script src="js/app.js"></script>
+    <script>
+        // Load dashboard data
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check auth
+            if (!Auth.isLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Update user info
+            const user = Auth.getCurrentUser();
+            if (user) {
+                document.querySelector('.user-info h4').textContent = user.name;
+                document.querySelector('.user-info span').textContent = user.role;
+                document.querySelector('.user-avatar').textContent = UI.getInitials(user.name);
+            }
+            
+            // Fetch orders
+            const orders = await DataService.fetchOrders();
+            
+            // Update stats
+            updateDashboardStats();
+            
+            // Update orders badge
+            document.getElementById('ordersBadge').textContent = orders.length;
+            
+            // Render recent orders (last 5)
+            renderRecentOrders(orders.slice(0, 5));
+            
+            // Update courier stats
+            updateCourierStats(orders);
+        });
+        
+        function renderRecentOrders(orders) {
+            const tbody = document.getElementById('recentOrdersBody');
+            
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-inbox" style="font-size: 40px; color: var(--gray-300);"></i>
+                            <p style="margin-top: 10px; color: var(--gray-500);">No orders yet</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td><span class="badge badge-primary">#${order.id}</span></td>
+                    <td>
+                        <div class="customer-cell">
+                            <div class="customer-avatar" style="background: ${UI.getAvatarColor(order.customer)}; width: 35px; height: 35px; font-size: 12px;">
+                                ${UI.getInitials(order.customer)}
+                            </div>
+                            <div class="customer-info">
+                                <strong>${order.customer}</strong>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="amount">${UI.formatCurrency(order.price)}</td>
+                    <td><span class="badge badge-${order.status === 'Delivered' ? 'success' : 'warning'}">${order.status || 'Pending'}</span></td>
+                </tr>
+            `).join('');
+        }
+        
+        function updateCourierStats(orders) {
+            const poOrders = orders.filter(o => (o.courier || '').toLowerCase().includes('post'));
+            const tcsOrders = orders.filter(o => (o.courier || '').toLowerCase().includes('tcs'));
+            
+            document.getElementById('poCount').textContent = poOrders.length;
+            document.getElementById('tcsCount').textContent = tcsOrders.length;
+        }
+    </script>
+</body>
+</html>

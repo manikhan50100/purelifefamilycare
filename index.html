@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - PureLife Family Care</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --dark: #0f172a;
+            --gray-500: #64748b;
+            --gray-200: #e2e8f0;
+            --white: #ffffff;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            overflow: hidden;
+        }
+        
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .bg-animation .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.2));
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        .shape:nth-child(1) { width: 400px; height: 400px; top: -100px; left: -100px; animation-delay: 0s; }
+        .shape:nth-child(2) { width: 300px; height: 300px; top: 50%; right: -100px; animation-delay: -5s; }
+        .shape:nth-child(3) { width: 200px; height: 200px; bottom: -50px; left: 30%; animation-delay: -10s; }
+        .shape:nth-child(4) { width: 150px; height: 150px; top: 20%; left: 60%; animation-delay: -7s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+        
+        /* Left Panel - Branding */
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            position: relative;
+            z-index: 1;
+            color: white;
+        }
+        
+        .brand-content {
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .brand-logo {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.4);
+            animation: pulse 3s infinite ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 20px 60px rgba(16, 185, 129, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 25px 70px rgba(16, 185, 129, 0.5); }
+        }
+        
+        .brand-logo i {
+            font-size: 50px;
+            color: white;
+        }
+        
+        .brand-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+        
+        .brand-subtitle {
+            font-size: 18px;
+            opacity: 0.8;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+        
+        .features-list {
+            margin-top: 50px;
+            text-align: left;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .feature-text {
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        /* Right Panel - Login Form */
+        .right-panel {
+            width: 500px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+            z-index: 2;
+            box-shadow: -20px 0 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        .login-header {
+            margin-bottom: 40px;
+        }
+        
+        .login-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: var(--gray-500);
+            font-size: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-500);
+            font-size: 18px;
+            transition: 0.3s;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 16px 16px 16px 50px;
+            font-size: 15px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            background: #f8fafc;
+            color: var(--dark);
+            transition: 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        .form-control:focus + i {
+            color: var(--primary);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray-500);
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+        
+        .remember-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--gray-500);
+        }
+        
+        .checkbox-label input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+        
+        .forgot-link {
+            font-size: 14px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.35);
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.45);
+        }
+        
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+            color: var(--gray-500);
+            font-size: 13px;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-200);
+        }
+        
+        .divider span {
+            padding: 0 15px;
+        }
+        
+        .demo-credentials {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .demo-credentials p {
+            font-size: 13px;
+            color: #166534;
+            margin-bottom: 8px;
+        }
+        
+        .demo-credentials code {
+            background: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+            color: var(--dark);
+            border: 1px solid #bbf7d0;
+        }
+        
+        /* Toast Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+        }
+        
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .left-panel {
+                padding: 40px 20px;
+                min-height: auto;
+            }
+            
+            .brand-title {
+                font-size: 32px;
+            }
+            
+            .features-list {
+                display: none;
+            }
+            
+            .right-panel {
+                width: 100%;
+                flex: 1;
+                border-radius: 30px 30px 0 0;
+                padding: 40px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    
+    <!-- Left Panel - Branding -->
+    <div class="left-panel">
+        <div class="brand-content">
+            <div class="brand-logo">
+                <i class="fas fa-leaf"></i>
+            </div>
+            <h1 class="brand-title">PureLife Family Care</h1>
+            <p class="brand-subtitle">Order Management System - Manage your orders, track shipments, and grow your business efficiently.</p>
+            
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-box-open"></i></div>
+                    <span class="feature-text">Easy Order Management</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-print"></i></div>
+                    <span class="feature-text">One-Click Slip Printing</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                    <span class="feature-text">Real-time Analytics</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                    <span class="feature-text">Secure & Reliable</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Panel - Login Form -->
+    <div class="right-panel">
+        <div class="login-header">
+            <h2>Welcome Back! 👋</h2>
+            <p>Please login to your account to continue</p>
+        </div>
+        
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <div class="input-group">
+                    <input type="text" id="username" class="form-control" placeholder="Enter username" required autocomplete="username">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="input-group">
+                    <input type="password" id="password" class="form-control" placeholder="Enter password" required autocomplete="current-password">
+                    <i class="fas fa-lock"></i>
+                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <i class="fas fa-eye" id="eyeIcon"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="remember-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="remember">
+                    Remember me
+                </label>
+                <a href="#" class="forgot-link">Forgot password?</a>
+            </div>
+            
+            <button type="submit" class="btn-login" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                Login to Dashboard
+            </button>
+        </form>
+        
+        <div class="divider"><span>Demo Credentials</span></div>
+        
+        <div class="demo-credentials">
+            <p>Use these credentials to login:</p>
+            <code>admin / admin123</code>
+        </div>
+    </div>
+    
+    <div id="toastContainer" class="toast-container"></div>
+    
+    <script src="js/app.js"></script>
+    <script>
+        // Toggle Password Visibility
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('eyeIcon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+        
+        // Check if already logged in
+        if (sessionStorage.getItem('isLoggedIn') === 'true') {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - PureLife Family Care</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>PureLife</h1>
+                    <span>Order Management</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="dashboard.html" class="nav-item">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="booking.html" class="nav-item">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>New Booking</span>
+                    </a>
+                    <a href="orders.html" class="nav-item active">
+                        <i class="fas fa-box-open"></i>
+                        <span>Orders</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="products.html" class="nav-item">
+                        <i class="fas fa-tags"></i>
+                        <span>Products</span>
+                    </a>
+                    <a href="customers.html" class="nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>Customers</span>
+                    </a>
+                    <a href="reports.html" class="nav-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="settings.html" class="nav-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-card" onclick="Auth.logout()">
+                    <div class="user-avatar">LA</div>
+                    <div class="user-info">
+                        <h4>Liaqat Ali</h4>
+                        <span>Admin</span>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="color: rgba(255,255,255,0.5); margin-left: auto;"></i>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="page-title">
+                        <h2>Orders</h2>
+                        <span>Manage and track all your orders</span>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search orders..." onkeyup="filterOrders()">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <button class="header-icon">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- Toolbar -->
+                <div class="card mb-2 animate-slideUp">
+                    <div class="card-body" style="padding: 16px 24px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                            <div class="btn-group">
+                                <button class="btn btn-primary" id="bulkPrintBtn" onclick="printSelectedSlips()" disabled>
+                                    <i class="fas fa-print"></i> Print Slips
+                                </button>
+                                <button class="btn" id="bulkMOBtn" onclick="printSelectedMO()" disabled style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white;">
+                                    <i class="fas fa-money-bill-wave"></i> Print M.O Slips
+                                </button>
+                                <a href="booking.html" class="btn btn-secondary">
+                                    <i class="fas fa-plus"></i> New Order
+                                </a>
+                            </div>
+                            
+                            <div class="btn-group">
+                                <select class="form-control" style="width: 150px;" onchange="filterByCourier(this.value)">
+                                    <option value="">All Couriers</option>
+                                    <option value="post">Post Office</option>
+                                    <option value="tcs">TCS</option>
+                                </select>
+                                <button class="btn btn-light" onclick="refreshOrders()">
+                                    <i class="fas fa-sync"></i> Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders Table -->
+                <div class="card animate-slideUp" style="animation-delay: 0.1s">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-list"></i>
+                            All Orders
+                            <span class="badge badge-primary" id="orderCount" style="margin-left: 10px;">0</span>
+                        </h3>
+                        <div style="font-size: 13px; color: var(--gray-500);">
+                            <span id="selectedCount">0</span> selected
+                        </div>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">
+                                            <input type="checkbox" class="checkbox-custom" id="selectAll" onchange="toggleSelectAll(this)">
+                                        </th>
+                                        <th>Order #</th>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Product</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersTableBody">
+                                    <tr>
+                                        <td colspan="8" style="text-align: center; padding: 60px 20px;">
+                                            <div class="spinner"></div>
+                                            <p style="margin-top: 15px; color: var(--gray-500);">Loading orders...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="toastContainer" class="toast-container"></div>
+    
+    <script src="js/app.js"></script>
+    <script>
+        let filteredOrders = [];
+        
+        // Check auth and load orders
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.isLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            await refreshOrders();
+        });
+        
+        async function refreshOrders() {
+            const orders = await DataService.fetchOrders();
+            filteredOrders = orders;
+            renderOrdersTable(orders);
+            document.getElementById('orderCount').textContent = orders.length;
+        }
+        
+        function filterByCourier(courier) {
+            if (!courier) {
+                renderOrdersTable(allOrders);
+                return;
+            }
+            const filtered = allOrders.filter(o => (o.courier || '').toLowerCase().includes(courier));
+            renderOrdersTable(filtered);
+        }
+        
+        // Listen to checkbox changes
+        document.addEventListener('change', (e) => {
+            if (e.target.classList.contains('order-checkbox')) {
+                updateSelectedCount();
+            }
+        });
+        
+        function updateSelectedCount() {
+            const checked = document.querySelectorAll('.order-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = checked;
+            
+            // Update Print Slips button
+            const bulkBtn = document.getElementById('bulkPrintBtn');
+            bulkBtn.disabled = checked === 0;
+            bulkBtn.innerHTML = checked > 0 
+                ? `<i class="fas fa-print"></i> Print Slips (${checked})`
+                : `<i class="fas fa-print"></i> Print Slips`;
+            
+            // Update Print M.O Slips button
+            const moBtn = document.getElementById('bulkMOBtn');
+            moBtn.disabled = checked === 0;
+            moBtn.innerHTML = checked > 0 
+                ? `<i class="fas fa-money-bill-wave"></i> Print M.O (${checked})`
+                : `<i class="fas fa-money-bill-wave"></i> Print M.O Slips`;
+        }
+    </script>
+</body>
+</html>
