@@ -663,7 +663,7 @@ function printSingleSlip(index) {
     printContent(html);
 }
 
-// Bulk Print Selected Slips
+// Bulk Print Selected Slips - Courier-specific
 function printSelectedSlips() {
     const checkboxes = document.querySelectorAll('.order-checkbox:checked');
     if (checkboxes.length === 0) {
@@ -672,32 +672,92 @@ function printSelectedSlips() {
     }
     
     const selectedIndexes = Array.from(checkboxes).map(cb => parseInt(cb.value));
-    let combinedHTML = `<!DOCTYPE html><html><head><style>${slipStyles}</style></head><body>`;
     
-    for (let i = 0; i < selectedIndexes.length; i += 4) {
-        const chunk = selectedIndexes.slice(i, i + 4);
-        const d1 = allOrders[chunk[0]];
-        const d2 = chunk[1] !== undefined ? allOrders[chunk[1]] : null;
-        const d3 = chunk[2] !== undefined ? allOrders[chunk[2]] : null;
-        const d4 = chunk[3] !== undefined ? allOrders[chunk[3]] : null;
+    // Separate orders by courier type
+    const poOrders = [];
+    const rsOrders = [];
+    const bridgeOrders = [];
+    const tcsOrders = [];
+    
+    selectedIndexes.forEach(idx => {
+        const order = allOrders[idx];
+        const courier = (order.courier || '').toLowerCase();
+        
+        if (courier.includes('leopards') && courier.includes('rs')) {
+            rsOrders.push(idx);
+        } else if (courier.includes('leopards') && courier.includes('bridge')) {
+            bridgeOrders.push(idx);
+        } else if (courier.includes('tcs')) {
+            tcsOrders.push(idx);
+        } else {
+            // Default: Post Office
+            poOrders.push(idx);
+        }
+    });
+    
+    // Print Post Office slips (4 per page)
+    if (poOrders.length > 0) {
+        let poHTML = `<!DOCTYPE html><html><head><style>${slipStyles}</style></head><body>`;
+        
+        for (let i = 0; i < poOrders.length; i += 4) {
+            const chunk = poOrders.slice(i, i + 4);
+            const d1 = allOrders[chunk[0]];
+            const d2 = chunk[1] !== undefined ? allOrders[chunk[1]] : null;
+            const d3 = chunk[2] !== undefined ? allOrders[chunk[2]] : null;
+            const d4 = chunk[3] !== undefined ? allOrders[chunk[3]] : null;
 
-        combinedHTML += `
-        <div class="page-sheet">
-            <table class="grid-table">
-                <tr>
-                    <td>${getSlipHTML(d1)}</td>
-                    <td>${getSlipHTML(d2)}</td>
-                </tr>
-                <tr>
-                    <td>${getSlipHTML(d3)}</td>
-                    <td>${getSlipHTML(d4)}</td>
-                </tr>
-            </table>
-        </div>`;
+            poHTML += `
+            <div class="page-sheet">
+                <table class="grid-table">
+                    <tr>
+                        <td>${getSlipHTML(d1)}</td>
+                        <td>${getSlipHTML(d2)}</td>
+                    </tr>
+                    <tr>
+                        <td>${getSlipHTML(d3)}</td>
+                        <td>${getSlipHTML(d4)}</td>
+                    </tr>
+                </table>
+            </div>`;
+        }
+        
+        poHTML += `</body></html>`;
+        printContent(poHTML);
+        
+        if (poOrders.length > 0) {
+            UI.showToast(`Printing ${poOrders.length} Post Office slips...`, 'success');
+        }
     }
     
-    combinedHTML += `</body></html>`;
-    printContent(combinedHTML);
+    // Print Leopards RS slips (1 per page)
+    if (rsOrders.length > 0) {
+        setTimeout(() => {
+            rsOrders.forEach((idx, i) => {
+                setTimeout(() => printLeopardsRS(idx), i * 1000);
+            });
+            UI.showToast(`Printing ${rsOrders.length} Leopards RS slips...`, 'success');
+        }, 1000);
+    }
+    
+    // Print Leopards Bridge slips (1 per page)
+    if (bridgeOrders.length > 0) {
+        setTimeout(() => {
+            bridgeOrders.forEach((idx, i) => {
+                setTimeout(() => printLeopardsBridge(idx), i * 1000);
+            });
+            UI.showToast(`Printing ${bridgeOrders.length} Leopards Bridge slips...`, 'success');
+        }, 2000 + rsOrders.length * 1000);
+    }
+    
+    // Print TCS slips
+    if (tcsOrders.length > 0) {
+        UI.showToast(`TCS slips: ${tcsOrders.length} - Using default design`, 'info');
+    }
+    
+    // Show summary
+    if (poOrders.length === 0 && rsOrders.length === 0 && bridgeOrders.length === 0) {
+        UI.showToast('No supported courier slips to print', 'warning');
+    }
 }
 
 // Number to Urdu Words
