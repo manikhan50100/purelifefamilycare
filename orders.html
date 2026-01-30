@@ -14,7 +14,7 @@
         <aside class="sidebar">
             <div class="sidebar-logo">
                 <div class="logo-icon">
-                    <i class="fas fa-leaf"></i>
+                    <img src="images/logo.png" alt="PureLife">
                 </div>
                 <div class="logo-text">
                     <h1>PureLife</h1>
@@ -112,7 +112,10 @@
                                     <i class="fas fa-print"></i> Print Slips
                                 </button>
                                 <button class="btn" id="bulkMOBtn" onclick="printSelectedMO()" disabled style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white;">
-                                    <i class="fas fa-money-bill-wave"></i> Print M.O Slips
+                                    <i class="fas fa-money-bill-wave"></i> Print M.O (PO)
+                                </button>
+                                <button class="btn" id="bulkLabelBtn" onclick="printSelectedLabels()" disabled style="background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white;">
+                                    <i class="fas fa-tag"></i> Print Labels (Leopards)
                                 </button>
                                 <a href="booking.html" class="btn btn-secondary">
                                     <i class="fas fa-plus"></i> New Order
@@ -120,10 +123,13 @@
                             </div>
                             
                             <div class="btn-group">
-                                <select class="form-control" style="width: 150px;" onchange="filterByCourier(this.value)">
+                                <select class="form-control" style="width: 180px;" onchange="filterByCourier(this.value)">
                                     <option value="">All Couriers</option>
-                                    <option value="post">Post Office</option>
+                                    <option value="post">Post Office (VPL)</option>
+                                    <option value="leopards-rs">Leopards - RS</option>
+                                    <option value="leopards-bridge">Leopards - Bridge</option>
                                     <option value="tcs">TCS</option>
+                                    <option value="m&p">M&P</option>
                                 </select>
                                 <button class="btn btn-light" onclick="refreshOrders()">
                                     <i class="fas fa-sync"></i> Refresh
@@ -218,22 +224,47 @@
         });
         
         function updateSelectedCount() {
-            const checked = document.querySelectorAll('.order-checkbox:checked').length;
+            const checkedBoxes = document.querySelectorAll('.order-checkbox:checked');
+            const checked = checkedBoxes.length;
             document.getElementById('selectedCount').textContent = checked;
             
-            // Update Print Slips button
+            // Count by courier type
+            let poCount = 0;
+            let leopardsCount = 0;
+            
+            checkedBoxes.forEach(cb => {
+                const index = parseInt(cb.dataset.index);
+                const order = allOrders[index];
+                const courier = (order?.courier || '').toLowerCase();
+                
+                if (courier.includes('post') || courier.includes('vpl')) {
+                    poCount++;
+                }
+                if (courier.includes('leopards') || courier.includes('rs') || courier.includes('bridge')) {
+                    leopardsCount++;
+                }
+            });
+            
+            // Update Print Slips button (all orders)
             const bulkBtn = document.getElementById('bulkPrintBtn');
             bulkBtn.disabled = checked === 0;
             bulkBtn.innerHTML = checked > 0 
                 ? `<i class="fas fa-print"></i> Print Slips (${checked})`
                 : `<i class="fas fa-print"></i> Print Slips`;
             
-            // Update Print M.O Slips button
+            // Update Print M.O button (Post Office only)
             const moBtn = document.getElementById('bulkMOBtn');
-            moBtn.disabled = checked === 0;
-            moBtn.innerHTML = checked > 0 
-                ? `<i class="fas fa-money-bill-wave"></i> Print M.O (${checked})`
-                : `<i class="fas fa-money-bill-wave"></i> Print M.O Slips`;
+            moBtn.disabled = poCount === 0;
+            moBtn.innerHTML = poCount > 0 
+                ? `<i class="fas fa-money-bill-wave"></i> Print M.O (${poCount})`
+                : `<i class="fas fa-money-bill-wave"></i> Print M.O (PO)`;
+            
+            // Update Print Labels button (Leopards only)
+            const labelBtn = document.getElementById('bulkLabelBtn');
+            labelBtn.disabled = leopardsCount === 0;
+            labelBtn.innerHTML = leopardsCount > 0 
+                ? `<i class="fas fa-tag"></i> Print Labels (${leopardsCount})`
+                : `<i class="fas fa-tag"></i> Print Labels (Leopards)`;
         }
     </script>
 </body>

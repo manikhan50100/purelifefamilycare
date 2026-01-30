@@ -364,7 +364,7 @@ function renderOrdersTable(orders = allOrders) {
         return `
             <tr class="animate-fadeIn" style="animation-delay: ${index * 0.05}s">
                 <td>
-                    <input type="checkbox" class="checkbox-custom order-checkbox" value="${index}">
+                    <input type="checkbox" class="checkbox-custom order-checkbox" value="${index}" data-index="${index}">
                 </td>
                 <td>
                     <span class="badge badge-primary">#${order.id}</span>
@@ -1087,6 +1087,274 @@ function printSelectedMO() {
     printContent(combinedHTML);
     
     UI.showToast(`Printing ${poIndexes.length} Money Order slips...`, 'success');
+}
+
+// ============================================
+// 🏷️ Print Labels for Leopards (RS / Bridge)
+// رائیڈر کو پارسل دینے کا ریکارڈ
+// ============================================
+function printSelectedLabels() {
+    const checkboxes = document.querySelectorAll('.order-checkbox:checked');
+    if (checkboxes.length === 0) {
+        UI.showToast('Please select orders to print labels', 'warning');
+        return;
+    }
+    
+    const selectedIndexes = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    
+    // Filter only Leopards (RS/Bridge) orders
+    const leopardsIndexes = selectedIndexes.filter(idx => {
+        const order = allOrders[idx];
+        const courier = (order.courier || '').toLowerCase();
+        return courier.includes('leopards') || courier.includes('rs') || courier.includes('bridge');
+    });
+    
+    if (leopardsIndexes.length === 0) {
+        UI.showToast('No Leopards orders selected! Labels only work for RS/Bridge orders.', 'warning');
+        return;
+    }
+    
+    const today = new Date().toLocaleDateString('en-GB');
+    let totalCOD = 0;
+    
+    // Calculate total COD
+    leopardsIndexes.forEach(idx => {
+        totalCOD += parseInt(allOrders[idx].price || 0);
+    });
+    
+    // Generate rows for each order
+    let orderRows = '';
+    leopardsIndexes.forEach((idx, i) => {
+        const d = allOrders[idx];
+        const courier = (d.courier || '').toUpperCase();
+        orderRows += `
+            <tr>
+                <td style="text-align: center; font-weight: bold;">${i + 1}</td>
+                <td>${d.customer}</td>
+                <td>${d.mobile}</td>
+                <td>${d.product || 'N/A'}</td>
+                <td style="text-align: center;">${courier.includes('RS') ? 'RS' : 'Bridge'}</td>
+                <td style="text-align: right; font-weight: bold;">Rs. ${d.price || 0}</td>
+            </tr>
+        `;
+    });
+    
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            @page { size: A4; margin: 10mm; }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { 
+                font-family: Arial, sans-serif; 
+                font-size: 12px; 
+                padding: 15px; 
+                background: white; 
+            }
+            
+            .label-sheet { 
+                max-width: 750px; 
+                margin: 0 auto; 
+                border: 2px solid #333; 
+                padding: 20px;
+            }
+            
+            .header { 
+                text-align: center; 
+                border-bottom: 2px solid #333; 
+                padding-bottom: 15px; 
+                margin-bottom: 20px;
+            }
+            .header h1 { 
+                font-size: 20px; 
+                color: #1a365d; 
+                margin-bottom: 5px;
+            }
+            .header h2 { 
+                font-size: 16px; 
+                color: #666; 
+                font-weight: normal;
+            }
+            
+            .info-row { 
+                display: flex; 
+                justify-content: space-between; 
+                margin-bottom: 15px;
+                padding: 10px;
+                background: #f5f5f5;
+                border-radius: 5px;
+            }
+            .info-item { 
+                display: flex; 
+                gap: 10px;
+            }
+            .info-label { 
+                font-weight: bold; 
+                color: #666;
+            }
+            .info-value { 
+                font-weight: bold; 
+                color: #333;
+            }
+            
+            table { 
+                width: 100%; 
+                border-collapse: collapse; 
+                margin: 15px 0;
+            }
+            th, td { 
+                border: 1px solid #999; 
+                padding: 8px 10px; 
+                text-align: left;
+            }
+            th { 
+                background: #1a365d; 
+                color: white; 
+                font-weight: bold;
+            }
+            tr:nth-child(even) { 
+                background: #f9f9f9; 
+            }
+            
+            .total-row { 
+                display: flex; 
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 20px;
+                padding: 15px;
+                background: #e8f5e9;
+                border: 2px solid #4caf50;
+                border-radius: 5px;
+            }
+            .total-label { 
+                font-size: 16px; 
+                font-weight: bold;
+            }
+            .total-value { 
+                font-size: 24px; 
+                font-weight: bold; 
+                color: #2e7d32;
+            }
+            
+            .signature-section { 
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px dashed #999;
+            }
+            .signature-row { 
+                display: flex; 
+                justify-content: space-between;
+                margin-top: 15px;
+            }
+            .signature-box { 
+                width: 45%;
+            }
+            .signature-line { 
+                border-bottom: 1px solid #333; 
+                height: 50px; 
+                margin-bottom: 5px;
+            }
+            .signature-label { 
+                text-align: center; 
+                font-size: 11px; 
+                color: #666;
+            }
+            
+            .footer { 
+                margin-top: 20px; 
+                text-align: center; 
+                font-size: 10px; 
+                color: #999;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="label-sheet">
+            <div class="header">
+                <h1>🐆 LEOPARDS COURIER - PARCEL HANDOVER RECORD</h1>
+                <h2>پارسل حوالگی ریکارڈ</h2>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-item">
+                    <span class="info-label">Date / تاریخ:</span>
+                    <span class="info-value">${today}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Total Parcels / کل پارسلز:</span>
+                    <span class="info-value">${leopardsIndexes.length}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Shipper:</span>
+                    <span class="info-value">Easy Shopping Zone</span>
+                </div>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">#</th>
+                        <th>Customer Name</th>
+                        <th>Mobile</th>
+                        <th>Product</th>
+                        <th style="width: 60px;">Account</th>
+                        <th style="width: 100px; text-align: right;">COD Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${orderRows}
+                </tbody>
+            </table>
+            
+            <div class="total-row">
+                <span class="total-label">Total COD Amount / کل COD رقم:</span>
+                <span class="total-value">Rs. ${totalCOD.toLocaleString()}</span>
+            </div>
+            
+            <div class="signature-section">
+                <p style="margin-bottom: 10px; font-weight: bold;">Confirmation / تصدیق:</p>
+                <p style="font-size: 11px; color: #666; margin-bottom: 15px;">
+                    I confirm that I have received the above mentioned parcels for delivery.
+                    <br>
+                    میں تصدیق کرتا ہوں کہ مندرجہ بالا پارسلز ڈیلیوری کے لیے وصول کر لیے ہیں۔
+                </p>
+                
+                <div class="signature-row">
+                    <div class="signature-box">
+                        <div class="signature-line"></div>
+                        <div class="signature-label">Rider Name & Signature / رائیڈر کا نام اور دستخط</div>
+                    </div>
+                    <div class="signature-box">
+                        <div class="signature-line"></div>
+                        <div class="signature-label">Shipper Signature / بھیجنے والے کے دستخط</div>
+                    </div>
+                </div>
+                
+                <div class="signature-row">
+                    <div class="signature-box">
+                        <div class="signature-line"></div>
+                        <div class="signature-label">Rider CNIC / رائیڈر شناختی کارڈ نمبر</div>
+                    </div>
+                    <div class="signature-box">
+                        <div class="signature-line"></div>
+                        <div class="signature-label">Time / وقت</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                This document serves as proof of parcel handover to the courier rider. Keep this for your records.
+                <br>
+                یہ دستاویز کوریئر رائیڈر کو پارسل حوالگی کا ثبوت ہے۔ اپنے ریکارڈ کے لیے محفوظ رکھیں۔
+            </div>
+        </div>
+    </body>
+    </html>`;
+    
+    printContent(html);
+    UI.showToast(`Printing labels for ${leopardsIndexes.length} Leopards orders...`, 'success');
 }
 
 // View Order Details (Modal)

@@ -79,21 +79,21 @@
         }
         
         .brand-logo {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, #10b981, #34d399);
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 180px;
+            height: auto;
             margin: 0 auto 30px;
-            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.4);
             animation: pulse 3s infinite ease-in-out;
         }
         
+        .brand-logo img {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 10px 30px rgba(255, 255, 255, 0.3));
+        }
+        
         @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 20px 60px rgba(16, 185, 129, 0.4); }
-            50% { transform: scale(1.05); box-shadow: 0 25px 70px rgba(16, 185, 129, 0.5); }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
         .brand-logo i {
@@ -409,7 +409,7 @@
     <div class="left-panel">
         <div class="brand-content">
             <div class="brand-logo">
-                <i class="fas fa-leaf"></i>
+                <img src="images/logo.png" alt="PureLife Family Care">
             </div>
             <h1 class="brand-title">PureLife Family Care</h1>
             <p class="brand-subtitle">Order Management System - Manage your orders, track shipments, and grow your business efficiently.</p>
