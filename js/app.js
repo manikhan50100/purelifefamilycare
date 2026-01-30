@@ -125,12 +125,49 @@ const UI = {
         }).format(amount).replace('PKR', 'Rs.');
     },
 
-    // Format Date
+    // Format Date - handles various formats from Google Sheets
     formatDate(dateStr) {
         if (!dateStr) return '-';
         try {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-PK', {
+            let date;
+            
+            // If it's already a formatted string like "30/01/2026" or "2026-01-30"
+            if (typeof dateStr === 'string') {
+                // Handle DD/MM/YYYY format
+                if (dateStr.includes('/')) {
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        // DD/MM/YYYY
+                        date = new Date(parts[2], parts[1] - 1, parts[0]);
+                    }
+                }
+                // Handle YYYY-MM-DD format
+                else if (dateStr.includes('-')) {
+                    date = new Date(dateStr);
+                }
+                // Handle Google Sheets serial number
+                else if (!isNaN(dateStr)) {
+                    // Google Sheets uses Jan 1, 1900 as day 1
+                    date = new Date((parseFloat(dateStr) - 25569) * 86400 * 1000);
+                }
+                else {
+                    date = new Date(dateStr);
+                }
+            }
+            // If it's a number (Google Sheets serial date)
+            else if (typeof dateStr === 'number') {
+                date = new Date((dateStr - 25569) * 86400 * 1000);
+            }
+            else {
+                date = new Date(dateStr);
+            }
+            
+            // Check if date is valid
+            if (isNaN(date.getTime())) {
+                return dateStr; // Return original if can't parse
+            }
+            
+            return date.toLocaleDateString('en-GB', {
                 day: '2-digit',
                 month: 'short',
                 year: 'numeric'
@@ -1169,8 +1206,9 @@ function printSlipByCourier(index) {
 // ============================================
 function printLeopardsRS(index) {
     const d = allOrders[index];
-    const today = new Date().toLocaleDateString('en-GB').replace(/\//g, '/');
+    const today = new Date().toLocaleDateString('en-GB');
     const trackingNo = 'MG' + Date.now().toString().slice(-10);
+    const orderDate = d.date ? UI.formatDate(d.date) : today;
     
     const html = `
     <!DOCTYPE html>
@@ -1178,168 +1216,268 @@ function printLeopardsRS(index) {
     <head>
         <meta charset="UTF-8">
         <style>
-            @page { size: A4; margin: 5mm; }
+            @page { size: A4; margin: 8mm; }
             * { box-sizing: border-box; margin: 0; padding: 0; }
-            body { font-family: Arial, sans-serif; font-size: 11px; padding: 10px; background: white; }
+            body { font-family: Arial, sans-serif; font-size: 11px; padding: 15px; background: white; }
             
-            .slip { width: 100%; max-width: 700px; margin: 0 auto; border: 2px solid #000; }
+            .slip { width: 100%; max-width: 750px; margin: 0 auto; border: 2px solid #333; background: #fff; }
             
-            /* Main Table */
-            table { width: 100%; border-collapse: collapse; }
-            td, th { border: 1px solid #999; padding: 4px 6px; vertical-align: middle; }
-            
-            /* Header Row */
-            .header-row td { border-bottom: 2px solid #000; }
+            /* Header Section */
+            .header { display: flex; border-bottom: 2px solid #333; }
             
             /* R&S Logo */
-            .logo-cell { width: 80px; text-align: center; vertical-align: middle; }
-            .rs-logo { font-family: 'Times New Roman', Georgia, serif; }
-            .rs-text { font-size: 32px; font-weight: bold; color: #1e3a5f; line-height: 1; }
-            .logistics-text { font-size: 11px; color: #1e3a5f; font-style: italic; }
+            .logo-box { 
+                width: 85px; 
+                padding: 8px; 
+                border-right: 1px solid #ccc; 
+                display: flex; 
+                flex-direction: column; 
+                justify-content: center; 
+                align-items: center;
+            }
+            .rs-text { 
+                font-family: 'Times New Roman', Georgia, serif; 
+                font-size: 36px; 
+                font-weight: bold; 
+                color: #1a3a5c; 
+                line-height: 1;
+            }
+            .logistics { font-size: 12px; color: #1a3a5c; font-style: italic; margin-top: -2px; }
             
-            /* Barcode Cell */
-            .barcode-cell { text-align: center; position: relative; }
-            .color-bars { display: flex; position: absolute; left: 0; top: 0; height: 100%; }
-            .color-bars div { width: 5px; }
-            .tracking-no { font-size: 12px; font-weight: bold; margin-top: 3px; }
+            /* Barcode Section */
+            .barcode-box { 
+                flex: 1; 
+                padding: 8px; 
+                border-right: 1px solid #ccc; 
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            .color-stripes {
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 30px;
+                display: flex;
+            }
+            .color-stripes div { flex: 1; }
+            .barcode-text { 
+                font-family: 'Libre Barcode 128', 'Courier New', monospace; 
+                font-size: 45px; 
+                letter-spacing: -2px;
+                margin-left: 30px;
+            }
+            .tracking { font-size: 13px; font-weight: bold; margin-top: 3px; }
             
-            /* Info Cells */
+            /* Info Grid */
+            .info-grid { display: flex; flex-wrap: wrap; width: 280px; }
+            .info-cell { 
+                width: 50%; 
+                padding: 4px 8px; 
+                border: 1px solid #ccc; 
+                background: #f9f9f9;
+            }
             .info-label { font-size: 9px; color: #666; }
-            .info-value { font-size: 10px; font-weight: bold; }
-            .info-cell { background: #f8f8f8; width: 80px; }
+            .info-value { font-size: 11px; font-weight: bold; }
             
-            /* Section Headers */
-            .section-header { background: #e8e8e8; font-weight: bold; text-align: center; padding: 5px; }
+            /* Main Content */
+            .content { display: flex; }
+            .shipper-section, .consignee-section { flex: 1; }
+            .shipper-section { border-right: 1px solid #333; }
             
-            /* Labels */
-            .label-cell { background: #fafafa; font-weight: bold; width: 100px; font-size: 10px; }
-            .value-cell { font-size: 11px; }
+            .section-title { 
+                background: #e5e5e5; 
+                padding: 5px 10px; 
+                font-weight: bold; 
+                text-align: center; 
+                border-bottom: 1px solid #999;
+            }
             
-            /* Amount */
-            .amount-value { font-size: 16px; font-weight: bold; color: #c00; }
+            .detail-row { 
+                display: flex; 
+                border-bottom: 1px solid #ccc; 
+                min-height: 28px;
+            }
+            .detail-label { 
+                width: 100px; 
+                padding: 5px 8px; 
+                background: #fafafa; 
+                font-weight: bold; 
+                font-size: 10px;
+                border-right: 1px solid #ccc;
+            }
+            .detail-value { 
+                flex: 1; 
+                padding: 5px 8px; 
+                font-size: 11px;
+            }
+            
+            /* Reference Row */
+            .ref-row { 
+                display: flex; 
+                border-bottom: 1px solid #333;
+            }
+            .ref-cell { 
+                flex: 1; 
+                padding: 5px 8px; 
+                border-right: 1px solid #ccc; 
+                font-weight: bold;
+                font-size: 10px;
+            }
+            .ref-cell:last-child { border-right: none; }
+            .amount { font-size: 18px; font-weight: bold; color: #c00; }
+            
+            /* Product Row */
+            .product-row { 
+                display: flex; 
+                border-bottom: 1px solid #ccc;
+            }
+            
+            /* Bottom Section */
+            .bottom-section { display: flex; border-bottom: 1px solid #333; }
+            .instruction-section { flex: 1; }
+            .branding-section { 
+                width: 150px; 
+                padding: 8px; 
+                text-align: center;
+                border-left: 1px solid #ccc;
+            }
+            .leopards-text { 
+                font-family: 'Brush Script MT', cursive; 
+                font-size: 22px; 
+                color: #b8860b; 
+                font-style: italic;
+            }
+            .leopards-tagline { font-size: 9px; color: #666; }
             
             /* Footer */
-            .footer-row td { border-top: 2px solid #000; }
-            .footer-text { color: #c00; font-size: 10px; text-align: center; font-weight: bold; padding: 8px; }
+            .footer { 
+                padding: 8px; 
+                text-align: center; 
+                color: #c00; 
+                font-size: 11px; 
+                font-weight: bold;
+            }
             
-            /* Leopards Logo */
-            .leopards-cell { text-align: right; padding: 5px; }
-            .leopards-logo { font-family: 'Brush Script MT', cursive; font-size: 18px; color: #c90; font-style: italic; }
-            
-            /* Urdu Text */
-            .urdu { font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', Arial; direction: rtl; }
+            /* Urdu */
+            .urdu { direction: rtl; text-align: right; }
         </style>
     </head>
     <body>
         <div class="slip">
-            <table>
-                <!-- Header Row -->
-                <tr class="header-row">
-                    <td class="logo-cell" rowspan="2">
-                        <div class="rs-logo">
-                            <div class="rs-text">R&S</div>
-                            <div class="logistics-text">logistics</div>
-                        </div>
-                    </td>
-                    <td class="barcode-cell" rowspan="2" style="position: relative;">
-                        <div class="color-bars">
-                            <div style="background: #e53935;"></div>
-                            <div style="background: #fb8c00;"></div>
-                            <div style="background: #fdd835;"></div>
-                            <div style="background: #43a047;"></div>
-                            <div style="background: #1e88e5;"></div>
-                            <div style="background: #5e35b1;"></div>
-                        </div>
-                        <div style="font-family: 'Libre Barcode 128', monospace; font-size: 40px; letter-spacing: -2px; padding-left: 35px;">||||||||||||||||||||</div>
-                        <div class="tracking-no">${trackingNo}</div>
-                    </td>
-                    <td class="info-cell"><div class="info-label">Date</div><div class="info-value">${d.date || today}</div></td>
-                    <td class="info-cell"><div class="info-label">Weight :</div><div class="info-value">2 Kg</div></td>
-                </tr>
-                <tr class="header-row">
-                    <td class="info-cell"><div class="info-label">Services</div><div class="info-value">Overnight</div></td>
-                    <td class="info-cell"><div class="info-label">Booking Type :</div><div class="info-value">Invoice</div></td>
-                </tr>
-                <tr class="header-row">
-                    <td colspan="2"></td>
-                    <td class="info-cell"><div class="info-label">Origin</div><div class="info-value">Muzaffargarh</div></td>
-                    <td class="info-cell"><div class="info-label">Destination</div><div class="info-value">${d.city || '---'}</div></td>
-                </tr>
-                
-                <!-- Shipper & Consignee Headers -->
-                <tr>
-                    <td colspan="2" class="section-header">Shipper</td>
-                    <td colspan="2" class="section-header">Consignee</td>
-                </tr>
-                
-                <!-- Company / Name -->
-                <tr>
-                    <td class="label-cell">Company:</td>
-                    <td class="value-cell">EASY SHOPPING ZONE BY PURE LIFE FAMILY CARE</td>
-                    <td class="label-cell">Name:</td>
-                    <td class="value-cell">${d.customer}</td>
-                </tr>
-                
-                <!-- Phone -->
-                <tr>
-                    <td class="label-cell">Phone No:</td>
-                    <td class="value-cell">03147686866</td>
-                    <td class="label-cell">Phone No :</td>
-                    <td class="value-cell">${d.mobile}</td>
-                </tr>
-                
-                <!-- Address -->
-                <tr>
-                    <td class="label-cell">Pickup/Return Address:</td>
-                    <td class="value-cell">SHOP NO.2, AL SAEED MARKET KHAN..MUZAFFARGARH</td>
-                    <td class="label-cell">Address:</td>
-                    <td class="value-cell urdu">${d.address}</td>
-                </tr>
-                
-                <!-- Reference Row -->
-                <tr>
-                    <td class="label-cell">Reference No. #</td>
-                    <td class="label-cell">Order ID. :</td>
-                    <td class="label-cell">COD Amount</td>
-                    <td class="value-cell"><span class="amount-value">Rs: ${d.price || '0'}.00</span></td>
-                </tr>
-                
-                <!-- Product Description -->
-                <tr>
-                    <td class="label-cell">Product Description :</td>
-                    <td colspan="3" class="value-cell">${d.product || 'RBC-500'}</td>
-                </tr>
-                
-                <!-- Special Instruction with Leopards Logo -->
-                <tr>
-                    <td class="label-cell">Special Instruction</td>
-                    <td class="value-cell" colspan="2">${d.notes || ''}</td>
-                    <td class="leopards-cell" rowspan="2">
-                        <div class="leopards-logo">Leopards</div>
-                        <div style="font-size: 8px; color: #666;">There for You</div>
-                        <svg viewBox="0 0 80 80" width="50" height="50" style="margin-top: 5px;">
-                            <rect x="5" y="5" width="20" height="20" fill="#000"/>
-                            <rect x="55" y="5" width="20" height="20" fill="#000"/>
-                            <rect x="5" y="55" width="20" height="20" fill="#000"/>
-                            <rect x="9" y="9" width="12" height="12" fill="#fff"/>
-                            <rect x="59" y="9" width="12" height="12" fill="#fff"/>
-                            <rect x="9" y="59" width="12" height="12" fill="#fff"/>
-                            <rect x="12" y="12" width="6" height="6" fill="#000"/>
-                            <rect x="62" y="12" width="6" height="6" fill="#000"/>
-                            <rect x="12" y="62" width="6" height="6" fill="#000"/>
-                            <rect x="30" y="30" width="20" height="20" fill="#000"/>
-                            <rect x="35" y="35" width="10" height="10" fill="#fff"/>
-                        </svg>
-                    </td>
-                </tr>
-                
-                <!-- Footer -->
-                <tr class="footer-row">
-                    <td colspan="3" class="footer-text">
-                        In case of any complaint or replacement please call at Shipper Number mentioned above.
-                    </td>
-                </tr>
-            </table>
+            <!-- HEADER -->
+            <div class="header">
+                <div class="logo-box">
+                    <div class="rs-text">R&S</div>
+                    <div class="logistics">logistics</div>
+                </div>
+                <div class="barcode-box">
+                    <div class="color-stripes">
+                        <div style="background: #e53935;"></div>
+                        <div style="background: #fb8c00;"></div>
+                        <div style="background: #fdd835;"></div>
+                        <div style="background: #43a047;"></div>
+                        <div style="background: #1e88e5;"></div>
+                        <div style="background: #5e35b1;"></div>
+                    </div>
+                    <div class="barcode-text">|||||||||||||||||||||||||</div>
+                    <div class="tracking">${trackingNo}</div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-cell"><div class="info-label">Date</div><div class="info-value">${orderDate}</div></div>
+                    <div class="info-cell"><div class="info-label">Weight :</div><div class="info-value">2 Kg</div></div>
+                    <div class="info-cell"><div class="info-label">Services</div><div class="info-value">Overnight</div></div>
+                    <div class="info-cell"><div class="info-label">Booking Type :</div><div class="info-value">Invoice</div></div>
+                    <div class="info-cell"><div class="info-label">Origin</div><div class="info-value">Muzaffargarh</div></div>
+                    <div class="info-cell"><div class="info-label">Destination</div><div class="info-value">${d.city || '---'}</div></div>
+                </div>
+            </div>
+            
+            <!-- SHIPPER & CONSIGNEE -->
+            <div class="content">
+                <div class="shipper-section">
+                    <div class="section-title">Shipper</div>
+                    <div class="detail-row">
+                        <div class="detail-label">Company:</div>
+                        <div class="detail-value">EASY SHOPPING ZONE BY PURE LIFE FAMILY CARE</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Phone No:</div>
+                        <div class="detail-value">03147686866</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Pickup/Return Address:</div>
+                        <div class="detail-value">SHOP NO.2, AL SAEED MARKET KHAN..MUZAFFARGARH</div>
+                    </div>
+                </div>
+                <div class="consignee-section">
+                    <div class="section-title">Consignee</div>
+                    <div class="detail-row">
+                        <div class="detail-label">Name:</div>
+                        <div class="detail-value">${d.customer}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Phone No :</div>
+                        <div class="detail-value">${d.mobile}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Address:</div>
+                        <div class="detail-value urdu">${d.address}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- REFERENCE ROW -->
+            <div class="ref-row">
+                <div class="ref-cell">Reference No. #</div>
+                <div class="ref-cell">Order ID. :</div>
+                <div class="ref-cell">COD Amount</div>
+                <div class="ref-cell"><span class="amount">Rs: ${d.price || '0'}.00</span></div>
+            </div>
+            
+            <!-- PRODUCT -->
+            <div class="product-row">
+                <div class="detail-label">Product Description :</div>
+                <div class="detail-value">${d.product || 'RBC-500'}</div>
+            </div>
+            
+            <!-- BOTTOM -->
+            <div class="bottom-section">
+                <div class="instruction-section">
+                    <div class="detail-row" style="border-bottom: none;">
+                        <div class="detail-label">Special Instruction</div>
+                        <div class="detail-value">${d.notes || ''}</div>
+                    </div>
+                </div>
+                <div class="branding-section">
+                    <div class="leopards-text">Leopards</div>
+                    <div class="leopards-tagline">There for You</div>
+                    <svg viewBox="0 0 80 80" width="55" height="55" style="margin-top: 5px;">
+                        <rect x="0" y="0" width="80" height="80" fill="white"/>
+                        <rect x="5" y="5" width="22" height="22" fill="black"/>
+                        <rect x="53" y="5" width="22" height="22" fill="black"/>
+                        <rect x="5" y="53" width="22" height="22" fill="black"/>
+                        <rect x="9" y="9" width="14" height="14" fill="white"/>
+                        <rect x="57" y="9" width="14" height="14" fill="white"/>
+                        <rect x="9" y="57" width="14" height="14" fill="white"/>
+                        <rect x="12" y="12" width="8" height="8" fill="black"/>
+                        <rect x="60" y="12" width="8" height="8" fill="black"/>
+                        <rect x="12" y="60" width="8" height="8" fill="black"/>
+                        <rect x="32" y="5" width="5" height="5" fill="black"/>
+                        <rect x="42" y="5" width="5" height="5" fill="black"/>
+                        <rect x="32" y="32" width="16" height="16" fill="black"/>
+                        <rect x="36" y="36" width="8" height="8" fill="white"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- FOOTER -->
+            <div class="footer">
+                In case of any complaint or replacement please call at Shipper Number mentioned above.
+            </div>
         </div>
     </body>
     </html>`;
