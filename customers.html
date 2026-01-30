@@ -71,7 +71,7 @@
                         <h4>Liaqat Ali</h4>
                         <span>Admin</span>
                     </div>
-                    <i class="fas fa-sign-out-alt" style="color: rgba(255,255,255,0.5); margin-left: auto;"></i>
+                    <i class="fas fa-sign-out-alt logout-icon"></i>
                 </div>
             </div>
         </aside>
@@ -81,7 +81,7 @@
             <!-- Header -->
             <header class="header">
                 <div class="header-left">
-                    <button class="menu-toggle" onclick="toggleSidebar()">
+                    <button class="menu-toggle" onclick="toggleSidebar()" title="Toggle Menu" aria-label="Toggle Menu">
                         <i class="fas fa-bars"></i>
                     </button>
                     <div class="page-title">
@@ -101,7 +101,7 @@
             <!-- Content -->
             <div class="content">
                 <!-- Stats -->
-                <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="stats-grid four-cols">
                     <div class="stat-card primary animate-slideUp">
                         <div class="stat-header">
                             <div class="stat-icon"><i class="fas fa-users"></i></div>
@@ -110,7 +110,7 @@
                         <div class="stat-label">Total Customers</div>
                     </div>
                     
-                    <div class="stat-card secondary animate-slideUp" style="animation-delay: 0.1s">
+                    <div class="stat-card secondary animate-slideUp delay-1">
                         <div class="stat-header">
                             <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
                         </div>
@@ -118,7 +118,7 @@
                         <div class="stat-label">New This Month</div>
                     </div>
                     
-                    <div class="stat-card warning animate-slideUp" style="animation-delay: 0.2s">
+                    <div class="stat-card warning animate-slideUp delay-2">
                         <div class="stat-header">
                             <div class="stat-icon"><i class="fas fa-redo"></i></div>
                         </div>
@@ -126,7 +126,7 @@
                         <div class="stat-label">Repeat Customers</div>
                     </div>
                     
-                    <div class="stat-card danger animate-slideUp" style="animation-delay: 0.3s">
+                    <div class="stat-card danger animate-slideUp delay-3">
                         <div class="stat-header">
                             <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
                         </div>
@@ -136,7 +136,7 @@
                 </div>
                 
                 <!-- Customers Table -->
-                <div class="card animate-slideUp" style="animation-delay: 0.4s">
+                <div class="card animate-slideUp delay-4">
                     <div class="card-header">
                         <h3 class="card-title">
                             <i class="fas fa-address-book"></i>
@@ -146,7 +146,7 @@
                             <i class="fas fa-download"></i> Export
                         </button>
                     </div>
-                    <div class="card-body" style="padding: 0;">
+                    <div class="card-body no-padding">
                         <div class="table-container">
                             <table class="table">
                                 <thead>
@@ -161,9 +161,9 @@
                                 </thead>
                                 <tbody id="customersTableBody">
                                     <tr>
-                                        <td colspan="6" style="text-align: center; padding: 60px 20px;">
+                                        <td colspan="6" class="empty-state">
                                             <div class="spinner"></div>
-                                            <p style="margin-top: 15px; color: var(--gray-500);">Loading customers...</p>
+                                            <p>Loading customers...</p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -237,9 +237,9 @@
             if (!data || data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 60px 20px;">
-                            <i class="fas fa-users" style="font-size: 48px; color: var(--gray-300);"></i>
-                            <p style="margin-top: 15px; color: var(--gray-500);">No customers found</p>
+                        <td colspan="6" class="empty-state">
+                            <i class="fas fa-users"></i>
+                            <p>No customers found</p>
                         </td>
                     </tr>
                 `;
@@ -262,8 +262,8 @@
                             </div>
                         </div>
                     </td>
-                    <td><i class="fas fa-phone" style="color: var(--gray-400); margin-right: 8px;"></i>${customer.mobile || '-'}</td>
-                    <td><i class="fas fa-map-marker-alt" style="color: var(--gray-400); margin-right: 8px;"></i>${location}</td>
+                    <td><i class="fas fa-phone icon-muted"></i>${customer.mobile || '-'}</td>
+                    <td><i class="fas fa-map-marker-alt icon-muted"></i>${location}</td>
                     <td><span class="badge badge-primary">${customer.orders.length}</span></td>
                     <td class="amount">${UI.formatCurrency(customer.totalSpent)}</td>
                     <td>${UI.formatDate(lastOrder?.date)}</td>
