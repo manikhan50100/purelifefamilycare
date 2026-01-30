@@ -29,6 +29,10 @@
                         <i class="fas fa-home"></i>
                         <span>Dashboard</span>
                     </a>
+                    <a href="status-dashboard.html" class="nav-item">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Status Dashboard</span>
+                    </a>
                     <a href="booking.html" class="nav-item">
                         <i class="fas fa-plus-circle"></i>
                         <span>New Booking</span>
@@ -81,7 +85,7 @@
             <!-- Header -->
             <header class="header">
                 <div class="header-left">
-                    <button class="menu-toggle" onclick="toggleSidebar()">
+                    <button class="menu-toggle" onclick="toggleSidebar()" title="Toggle Menu" aria-label="Toggle Menu">
                         <i class="fas fa-bars"></i>
                     </button>
                     <div class="page-title">
@@ -95,7 +99,7 @@
                         <input type="text" id="searchInput" placeholder="Search orders..." onkeyup="filterOrders()">
                         <i class="fas fa-search"></i>
                     </div>
-                    <button class="header-icon">
+                    <button class="header-icon" title="Notifications" aria-label="Notifications">
                         <i class="fas fa-bell"></i>
                     </button>
                 </div>
@@ -105,16 +109,16 @@
             <div class="content">
                 <!-- Toolbar -->
                 <div class="card mb-2 animate-slideUp">
-                    <div class="card-body" style="padding: 16px 24px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                    <div class="card-body toolbar">
+                        <div class="toolbar-row">
                             <div class="btn-group">
                                 <button class="btn btn-primary" id="bulkPrintBtn" onclick="printSelectedSlips()" disabled>
                                     <i class="fas fa-print"></i> Print Slips
                                 </button>
-                                <button class="btn" id="bulkMOBtn" onclick="printSelectedMO()" disabled style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white;">
+                                <button class="btn btn-mo" id="bulkMOBtn" onclick="printSelectedMO()" disabled>
                                     <i class="fas fa-money-bill-wave"></i> Print M.O (PO)
                                 </button>
-                                <button class="btn" id="bulkLabelBtn" onclick="printSelectedLabels()" disabled style="background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white;">
+                                <button class="btn btn-label" id="bulkLabelBtn" onclick="printSelectedLabels()" disabled>
                                     <i class="fas fa-tag"></i> Print Labels (Leopards)
                                 </button>
                                 <a href="booking.html" class="btn btn-secondary">
@@ -123,7 +127,7 @@
                             </div>
                             
                             <div class="btn-group">
-                                <select class="form-control" style="width: 180px;" onchange="filterByCourier(this.value)">
+                                <select class="form-control w-180" onchange="filterByCourier(this.value)" title="Filter by Courier">
                                     <option value="">All Couriers</option>
                                     <option value="post">Post Office (VPL)</option>
                                     <option value="leopards-rs">Leopards - RS</option>
@@ -140,24 +144,24 @@
                 </div>
                 
                 <!-- Orders Table -->
-                <div class="card animate-slideUp" style="animation-delay: 0.1s">
+                <div class="card animate-slideUp delay-1">
                     <div class="card-header">
                         <h3 class="card-title">
                             <i class="fas fa-list"></i>
                             All Orders
-                            <span class="badge badge-primary" id="orderCount" style="margin-left: 10px;">0</span>
+                            <span class="badge badge-primary ml-10" id="orderCount">0</span>
                         </h3>
-                        <div style="font-size: 13px; color: var(--gray-500);">
+                        <div class="text-sm-muted">
                             <span id="selectedCount">0</span> selected
                         </div>
                     </div>
-                    <div class="card-body" style="padding: 0;">
+                    <div class="card-body no-padding">
                         <div class="table-container">
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th style="width: 50px;">
-                                            <input type="checkbox" class="checkbox-custom" id="selectAll" onchange="toggleSelectAll(this)">
+                                        <th class="checkbox-col">
+                                            <input type="checkbox" class="checkbox-custom" id="selectAll" onchange="toggleSelectAll(this)" title="Select All Orders" aria-label="Select All Orders">
                                         </th>
                                         <th>Order #</th>
                                         <th>Date</th>
@@ -170,9 +174,9 @@
                                 </thead>
                                 <tbody id="ordersTableBody">
                                     <tr>
-                                        <td colspan="8" style="text-align: center; padding: 60px 20px;">
+                                        <td colspan="8" class="empty-state">
                                             <div class="spinner"></div>
-                                            <p style="margin-top: 15px; color: var(--gray-500);">Loading orders...</p>
+                                            <p>Loading orders...</p>
                                         </td>
                                     </tr>
                                 </tbody>

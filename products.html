@@ -29,6 +29,10 @@
                         <i class="fas fa-home"></i>
                         <span>Dashboard</span>
                     </a>
+                    <a href="status-dashboard.html" class="nav-item">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Status Dashboard</span>
+                    </a>
                     <a href="booking.html" class="nav-item">
                         <i class="fas fa-plus-circle"></i>
                         <span>New Booking</span>
@@ -81,7 +85,7 @@
             <!-- Header -->
             <header class="header">
                 <div class="header-left">
-                    <button class="menu-toggle" onclick="toggleSidebar()">
+                    <button class="menu-toggle" onclick="toggleSidebar()" title="Toggle Menu" aria-label="Toggle Menu">
                         <i class="fas fa-bars"></i>
                     </button>
                     <div class="page-title">
@@ -100,7 +104,7 @@
             <!-- Content -->
             <div class="content">
                 <!-- Stats -->
-                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="stats-grid three-cols">
                     <div class="stat-card primary animate-slideUp">
                         <div class="stat-header">
                             <div class="stat-icon"><i class="fas fa-box"></i></div>
@@ -109,7 +113,7 @@
                         <div class="stat-label">Total Products</div>
                     </div>
                     
-                    <div class="stat-card secondary animate-slideUp" style="animation-delay: 0.1s">
+                    <div class="stat-card secondary animate-slideUp delay-1">
                         <div class="stat-header">
                             <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
                         </div>
@@ -117,7 +121,7 @@
                         <div class="stat-label">Active Products</div>
                     </div>
                     
-                    <div class="stat-card warning animate-slideUp" style="animation-delay: 0.2s">
+                    <div class="stat-card warning animate-slideUp delay-2">
                         <div class="stat-header">
                             <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
                         </div>
@@ -127,68 +131,68 @@
                 </div>
                 
                 <!-- Products Grid -->
-                <div class="card animate-slideUp" style="animation-delay: 0.3s">
+                <div class="card animate-slideUp delay-3">
                     <div class="card-header">
                         <h3 class="card-title">
                             <i class="fas fa-th"></i>
                             Product Catalog
                         </h3>
-                        <div class="search-box" style="width: auto;">
-                            <input type="text" placeholder="Search products..." style="padding: 8px 15px 8px 40px; width: 200px;">
+                        <div class="search-box auto-width">
+                            <input type="text" placeholder="Search products...">
                             <i class="fas fa-search"></i>
                         </div>
                     </div>
                     <div class="card-body">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                        <div class="product-grid">
                             <!-- Product Card 1 -->
-                            <div style="background: var(--gray-50); border-radius: 16px; overflow: hidden; transition: var(--transition); border: 1px solid var(--gray-200);">
-                                <div style="height: 160px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-leaf" style="font-size: 50px; color: white; opacity: 0.9;"></i>
+                            <div class="product-card">
+                                <div class="product-card-image purple">
+                                    <i class="fas fa-leaf"></i>
                                 </div>
-                                <div style="padding: 20px;">
-                                    <h4 style="font-size: 16px; font-weight: 600; color: var(--dark); margin-bottom: 5px;">Herbal Cream</h4>
-                                    <p style="font-size: 13px; color: var(--gray-500); margin-bottom: 15px;">Natural herbal skin cream</p>
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span style="font-size: 20px; font-weight: 700; color: var(--secondary);">Rs. 1,500</span>
+                                <div class="product-card-body">
+                                    <h4 class="product-card-title">Herbal Cream</h4>
+                                    <p class="product-card-desc">Natural herbal skin cream</p>
+                                    <div class="product-card-footer">
+                                        <span class="product-price">Rs. 1,500</span>
                                         <span class="badge badge-success">In Stock</span>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Product Card 2 -->
-                            <div style="background: var(--gray-50); border-radius: 16px; overflow: hidden; transition: var(--transition); border: 1px solid var(--gray-200);">
-                                <div style="height: 160px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-mortar-pestle" style="font-size: 50px; color: white; opacity: 0.9;"></i>
+                            <div class="product-card">
+                                <div class="product-card-image green">
+                                    <i class="fas fa-mortar-pestle"></i>
                                 </div>
-                                <div style="padding: 20px;">
-                                    <h4 style="font-size: 16px; font-weight: 600; color: var(--dark); margin-bottom: 5px;">Hair Oil</h4>
-                                    <p style="font-size: 13px; color: var(--gray-500); margin-bottom: 15px;">Pure herbal hair oil</p>
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span style="font-size: 20px; font-weight: 700; color: var(--secondary);">Rs. 800</span>
+                                <div class="product-card-body">
+                                    <h4 class="product-card-title">Hair Oil</h4>
+                                    <p class="product-card-desc">Pure herbal hair oil</p>
+                                    <div class="product-card-footer">
+                                        <span class="product-price">Rs. 800</span>
                                         <span class="badge badge-success">In Stock</span>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Product Card 3 -->
-                            <div style="background: var(--gray-50); border-radius: 16px; overflow: hidden; transition: var(--transition); border: 1px solid var(--gray-200);">
-                                <div style="height: 160px; background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%); display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-pills" style="font-size: 50px; color: white; opacity: 0.9;"></i>
+                            <div class="product-card">
+                                <div class="product-card-image orange">
+                                    <i class="fas fa-pills"></i>
                                 </div>
-                                <div style="padding: 20px;">
-                                    <h4 style="font-size: 16px; font-weight: 600; color: var(--dark); margin-bottom: 5px;">Health Capsules</h4>
-                                    <p style="font-size: 13px; color: var(--gray-500); margin-bottom: 15px;">Immunity booster capsules</p>
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span style="font-size: 20px; font-weight: 700; color: var(--secondary);">Rs. 2,000</span>
+                                <div class="product-card-body">
+                                    <h4 class="product-card-title">Health Capsules</h4>
+                                    <p class="product-card-desc">Immunity booster capsules</p>
+                                    <div class="product-card-footer">
+                                        <span class="product-price">Rs. 2,000</span>
                                         <span class="badge badge-warning">Low Stock</span>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Add Product Card -->
-                            <div onclick="openAddProduct()" style="background: var(--white); border: 2px dashed var(--gray-300); border-radius: 16px; min-height: 280px; display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer; transition: var(--transition);" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--gray-300)'">
-                                <i class="fas fa-plus-circle" style="font-size: 50px; color: var(--gray-400); margin-bottom: 15px;"></i>
-                                <span style="color: var(--gray-500); font-weight: 500;">Add New Product</span>
+                            <div class="add-product-card" onclick="openAddProduct()">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>Add New Product</span>
                             </div>
                         </div>
                     </div>

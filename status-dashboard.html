@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Dashboard - PureLife Family Care</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <img src="images/logo.png" alt="PureLife">
+                </div>
+                <div class="logo-text">
+                    <h1>PureLife</h1>
+                    <span>Order Management</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="dashboard.html" class="nav-item">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="status-dashboard.html" class="nav-item active">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Status Dashboard</span>
+                    </a>
+                    <a href="booking.html" class="nav-item">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>New Booking</span>
+                    </a>
+                    <a href="orders.html" class="nav-item">
+                        <i class="fas fa-box-open"></i>
+                        <span>Orders</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="products.html" class="nav-item">
+                        <i class="fas fa-tags"></i>
+                        <span>Products</span>
+                    </a>
+                    <a href="customers.html" class="nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>Customers</span>
+                    </a>
+                    <a href="reports.html" class="nav-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="settings.html" class="nav-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-card" onclick="Auth.logout()">
+                    <div class="user-avatar">LA</div>
+                    <div class="user-info">
+                        <h4>Liaqat Ali</h4>
+                        <span>Admin</span>
+                    </div>
+                    <i class="fas fa-sign-out-alt logout-icon"></i>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()" title="Toggle Menu" aria-label="Toggle Menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="page-title">
+                        <h2>Status Dashboard</h2>
+                        <span>Real-time order status overview</span>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <button class="btn btn-light" onclick="refreshStatusDashboard()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- Order Status Grid -->
+                <div class="status-dashboard" id="statusDashboard">
+                    <!-- Loading -->
+                    <div class="status-card">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                
+                <!-- COD Receivables Section -->
+                <div class="cod-section">
+                    <h4><i class="fas fa-coins"></i> COD Receivables</h4>
+                    <div class="cod-grid">
+                        <div class="cod-card blue">
+                            <div class="cod-card-label">Open Orders COD</div>
+                            <div class="cod-card-value" id="openCOD">Rs. 0</div>
+                        </div>
+                        <div class="cod-card green">
+                            <div class="cod-card-label">Delivered COD</div>
+                            <div class="cod-card-value" id="deliveredCOD">Rs. 0</div>
+                        </div>
+                        <div class="cod-card purple">
+                            <div class="cod-card-label">Total Receivables</div>
+                            <div class="cod-card-value" id="totalCOD">Rs. 0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders by Status Table -->
+                <div class="card mt-3 animate-slideUp">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-filter"></i>
+                            Filter by Status
+                        </h3>
+                        <select class="form-control w-180" id="statusFilter" onchange="filterByStatus(this.value)" title="Filter by Status">
+                            <option value="">All Statuses</option>
+                        </select>
+                    </div>
+                    <div class="card-body no-padding">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Product</th>
+                                        <th>Amount</th>
+                                        <th>Courier</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statusTableBody">
+                                    <tr>
+                                        <td colspan="7" class="empty-state">
+                                            <div class="spinner"></div>
+                                            <p>Loading orders...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="toastContainer" class="toast-container"></div>
+    
+    <script src="js/app.js"></script>
+    <script>
+        let allOrders = [];
+        let statusCounts = {};
+        
+        // Status Configuration with icons and colors
+        const statusConfig = {
+            'Pending': { icon: 'fa-clock', class: 'pending', label: 'Pending' },
+            'New Booked': { icon: 'fa-bookmark', class: 'booked', label: 'New Booked' },
+            'Booked': { icon: 'fa-bookmark', class: 'booked', label: 'Booked' },
+            'Pick up in progress': { icon: 'fa-truck-loading', class: 'pickup', label: 'Pick up in Progress' },
+            'Ready for Pickup': { icon: 'fa-box', class: 'pickup', label: 'Ready for Pickup' },
+            'Picked up': { icon: 'fa-check-circle', class: 'pickup', label: 'Picked Up' },
+            'In Transit': { icon: 'fa-shipping-fast', class: 'transit', label: 'In Transit' },
+            'Parcel in Transit': { icon: 'fa-shipping-fast', class: 'transit', label: 'Parcel in Transit' },
+            'Out for Delivery': { icon: 'fa-truck', class: 'transit', label: 'Out for Delivery' },
+            'Delivered': { icon: 'fa-check-double', class: 'delivered', label: 'Delivered' },
+            'Delivery ...': { icon: 'fa-truck', class: 'transit', label: 'Delivery' },
+            'Order Boo...': { icon: 'fa-bookmark', class: 'booked', label: 'Order Booked' },
+            'Order Booked': { icon: 'fa-bookmark', class: 'booked', label: 'Order Booked' },
+            'Returned': { icon: 'fa-undo', class: 'returned', label: 'Returned' },
+            'Return in Process': { icon: 'fa-undo', class: 'returned', label: 'Return in Process' },
+            'Returned to Shipper': { icon: 'fa-undo-alt', class: 'returned', label: 'Returned to Shipper' },
+            'Cancelled': { icon: 'fa-times-circle', class: 'returned', label: 'Cancelled' },
+            'Refused': { icon: 'fa-ban', class: 'returned', label: 'Refused' },
+            'Lost': { icon: 'fa-exclamation-triangle', class: 'returned', label: 'Lost' },
+            'Total': { icon: 'fa-box-open', class: 'total', label: 'Total Orders' }
+        };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.isLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            await refreshStatusDashboard();
+        });
+        
+        async function refreshStatusDashboard() {
+            allOrders = await DataService.fetchOrders();
+            calculateStatusCounts();
+            renderStatusDashboard();
+            renderCODStats();
+            populateStatusFilter();
+            renderOrdersTable(allOrders);
+        }
+        
+        function calculateStatusCounts() {
+            statusCounts = {};
+            
+            allOrders.forEach(order => {
+                let status = (order.status || 'Pending').trim();
+                
+                // Normalize status names
+                if (status.toLowerCase().includes('deliver') && status.toLowerCase().includes('...')) {
+                    status = 'Delivered';
+                }
+                
+                if (!statusCounts[status]) {
+                    statusCounts[status] = 0;
+                }
+                statusCounts[status]++;
+            });
+            
+            // Add total
+            statusCounts['Total'] = allOrders.length;
+        }
+        
+        function renderStatusDashboard() {
+            const container = document.getElementById('statusDashboard');
+            
+            // Sort statuses: put common ones first
+            const priorityOrder = ['Total', 'Pending', 'Booked', 'New Booked', 'Order Booked', 'Delivered', 'In Transit', 'Out for Delivery', 'Returned', 'Cancelled'];
+            
+            const sortedStatuses = Object.keys(statusCounts).sort((a, b) => {
+                const aIndex = priorityOrder.indexOf(a);
+                const bIndex = priorityOrder.indexOf(b);
+                if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
+                if (aIndex === -1) return 1;
+                if (bIndex === -1) return -1;
+                return aIndex - bIndex;
+            });
+            
+            container.innerHTML = sortedStatuses.map(status => {
+                const config = statusConfig[status] || { icon: 'fa-tag', class: 'pending', label: status };
+                const count = statusCounts[status];
+                
+                return `
+                    <div class="status-card" onclick="filterByStatus('${status}')" data-status="${status}">
+                        <div class="status-icon ${config.class}">
+                            <i class="fas ${config.icon}"></i>
+                        </div>
+                        <div class="status-info">
+                            <div class="status-label">${config.label}</div>
+                            <div class="status-value">${count}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function renderCODStats() {
+            let openCOD = 0;
+            let deliveredCOD = 0;
+            
+            allOrders.forEach(order => {
+                const price = parseFloat(order.price) || 0;
+                const status = (order.status || '').toLowerCase();
+                
+                if (status.includes('deliver')) {
+                    deliveredCOD += price;
+                } else if (!status.includes('return') && !status.includes('cancel') && !status.includes('refuse')) {
+                    openCOD += price;
+                }
+            });
+            
+            document.getElementById('openCOD').textContent = UI.formatCurrency(openCOD);
+            document.getElementById('deliveredCOD').textContent = UI.formatCurrency(deliveredCOD);
+            document.getElementById('totalCOD').textContent = UI.formatCurrency(openCOD + deliveredCOD);
+        }
+        
+        function populateStatusFilter() {
+            const select = document.getElementById('statusFilter');
+            const statuses = Object.keys(statusCounts).filter(s => s !== 'Total');
+            
+            select.innerHTML = '<option value="">All Statuses</option>' + 
+                statuses.map(s => `<option value="${s}">${s} (${statusCounts[s]})</option>`).join('');
+        }
+        
+        function filterByStatus(status) {
+            // Highlight selected card
+            document.querySelectorAll('.status-card').forEach(card => {
+                card.classList.toggle('active', card.dataset.status === status);
+            });
+            
+            // Update dropdown
+            document.getElementById('statusFilter').value = status === 'Total' ? '' : status;
+            
+            // Filter orders
+            let filtered = allOrders;
+            if (status && status !== 'Total') {
+                filtered = allOrders.filter(o => (o.status || 'Pending').trim() === status);
+            }
+            
+            renderOrdersTable(filtered);
+        }
+        
+        function renderOrdersTable(orders) {
+            const tbody = document.getElementById('statusTableBody');
+            
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No orders found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = orders.slice(0, 50).map((order, index) => {
+                const statusClass = getStatusBadgeClass(order.status);
+                
+                return `
+                    <tr>
+                        <td><span class="badge badge-primary">#${order.id || index + 1}</span></td>
+                        <td>${UI.formatDate(order.date)}</td>
+                        <td>
+                            <div class="customer-cell">
+                                <div class="customer-avatar-sm" style="background: ${UI.getAvatarColor(order.customer)}">
+                                    ${UI.getInitials(order.customer)}
+                                </div>
+                                <div class="customer-info">
+                                    <strong>${order.customer || '-'}</strong>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${order.product || '-'}</td>
+                        <td class="amount">${UI.formatCurrency(order.price)}</td>
+                        <td><span class="badge badge-light">${order.courier || '-'}</span></td>
+                        <td><span class="badge badge-${statusClass}">${order.status || 'Pending'}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function getStatusBadgeClass(status) {
+            if (!status) return 'warning';
+            const s = status.toLowerCase();
+            if (s.includes('deliver')) return 'success';
+            if (s.includes('pending')) return 'warning';
+            if (s.includes('return') || s.includes('cancel') || s.includes('refuse')) return 'danger';
+            if (s.includes('transit') || s.includes('pickup') || s.includes('booked')) return 'primary';
+            return 'light';
+        }
+    </script>
+</body>
+</html>
