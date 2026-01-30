@@ -1165,11 +1165,11 @@ function printSlipByCourier(index) {
 }
 
 // ============================================
-// 🐆 Leopards R&S Slip Design
+// 🐆 Leopards R&S Slip Design (Exact Replica)
 // ============================================
 function printLeopardsRS(index) {
     const d = allOrders[index];
-    const today = new Date().toLocaleDateString('en-GB');
+    const today = new Date().toLocaleDateString('en-GB').replace(/\//g, '/');
     const trackingNo = 'MG' + Date.now().toString().slice(-10);
     
     const html = `
@@ -1178,91 +1178,132 @@ function printLeopardsRS(index) {
     <head>
         <meta charset="UTF-8">
         <style>
-            @page { size: A4; margin: 10mm; }
-            body { margin: 0; padding: 20px; font-family: Arial, sans-serif; font-size: 12px; }
-            * { box-sizing: border-box; }
+            @page { size: A4; margin: 5mm; }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: Arial, sans-serif; font-size: 11px; padding: 10px; background: white; }
             
-            .slip { width: 100%; max-width: 750px; margin: 0 auto; border: 2px solid #000; }
+            .slip { width: 100%; max-width: 550px; margin: 0 auto; border: 1px solid #000; }
             
-            .header { display: flex; border-bottom: 2px solid #000; }
-            .logo-section { width: 200px; padding: 10px; border-right: 1px solid #000; }
-            .logo-rs { font-size: 36px; font-weight: bold; font-family: 'Times New Roman', serif; }
-            .logo-rs .r { color: #1a365d; }
-            .logo-rs .s { color: #c53030; }
-            .logo-text { font-size: 10px; color: #666; letter-spacing: 3px; }
+            /* Header with colored bars */
+            .header-row { display: flex; border-bottom: 1px solid #000; }
             
-            .barcode-section { flex: 1; padding: 10px; text-align: center; border-right: 1px solid #000; }
-            .barcode { font-family: 'Libre Barcode 128', monospace; font-size: 40px; }
-            .tracking-no { font-size: 14px; font-weight: bold; margin-top: 5px; }
+            .logo-cell { width: 90px; padding: 5px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #000; }
             
-            .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; }
-            .info-cell { padding: 5px 8px; border: 1px solid #000; }
-            .info-label { font-size: 10px; color: #666; }
-            .info-value { font-weight: bold; font-size: 12px; }
+            /* R&S Logo */
+            .rs-logo { font-family: 'Times New Roman', Georgia, serif; }
+            .rs-logo .rs-text { font-size: 38px; font-weight: bold; color: #1e3a5f; line-height: 1; }
+            .rs-logo .logistics { font-size: 12px; color: #1e3a5f; letter-spacing: 2px; margin-top: -2px; }
             
-            .section-title { background: #e2e8f0; padding: 5px 10px; font-weight: bold; text-align: center; border: 1px solid #000; }
+            /* Colored Bars */
+            .color-bars { display: flex; height: 40px; width: 8px; flex-direction: column; position: absolute; right: 0; top: 0; }
+            .bar { flex: 1; }
+            .bar-red { background: #e53935; }
+            .bar-orange { background: #fb8c00; }
+            .bar-yellow { background: #fdd835; }
+            .bar-green { background: #43a047; }
+            .bar-blue { background: #1e88e5; }
+            .bar-indigo { background: #3949ab; }
+            .bar-violet { background: #8e24aa; }
             
-            .details-row { display: flex; border-bottom: 1px solid #000; }
-            .details-label { width: 120px; padding: 8px; background: #f7fafc; font-weight: bold; border-right: 1px solid #000; }
-            .details-value { flex: 1; padding: 8px; }
+            .barcode-cell { flex: 1; padding: 5px; text-align: center; border-right: 1px solid #000; position: relative; }
+            .barcode-img { font-family: 'Libre Barcode 128', monospace; font-size: 35px; letter-spacing: -2px; }
+            .tracking { font-size: 11px; font-weight: bold; color: #c00; margin-top: 2px; }
             
-            .two-col { display: grid; grid-template-columns: 1fr 1fr; }
-            .col { border-right: 1px solid #000; }
-            .col:last-child { border-right: none; }
+            .info-cell { width: 80px; padding: 3px 5px; border-right: 1px solid #ccc; border-bottom: 1px solid #ccc; background: #f5f5f5; }
+            .info-cell:last-child { border-right: none; }
+            .info-label { font-size: 9px; color: #666; }
+            .info-value { font-size: 10px; font-weight: bold; }
             
-            .footer { padding: 10px; text-align: center; font-size: 11px; color: #c53030; border-top: 2px solid #000; }
+            .info-grid { display: flex; flex-wrap: wrap; }
+            .info-grid .info-cell { width: 50%; }
             
-            .amount-box { font-size: 18px; font-weight: bold; color: #1a365d; }
+            /* Sections */
+            .section-header { background: #e0e0e0; padding: 4px 8px; font-weight: bold; text-align: center; border: 1px solid #000; font-size: 11px; }
+            
+            .details-table { width: 100%; border-collapse: collapse; }
+            .details-table td { padding: 5px 8px; border: 1px solid #ccc; vertical-align: top; }
+            .details-table .label { width: 90px; font-weight: bold; background: #fafafa; font-size: 10px; }
+            .details-table .value { font-size: 11px; }
+            
+            .two-columns { display: flex; }
+            .column { flex: 1; }
+            .column:first-child { border-right: 1px solid #000; }
+            
+            /* Amount */
+            .amount-row { display: flex; border-top: 1px solid #000; }
+            .amount-row > div { flex: 1; padding: 5px 8px; border-right: 1px solid #ccc; font-size: 10px; }
+            .amount-row > div:last-child { border-right: none; }
+            .amount-value { font-size: 16px; font-weight: bold; color: #c00; }
+            
+            .footer { padding: 8px; text-align: center; font-size: 10px; color: #c00; border-top: 1px solid #000; font-weight: bold; }
         </style>
     </head>
     <body>
         <div class="slip">
             <!-- Header -->
-            <div class="header">
-                <div class="logo-section">
-                    <div class="logo-rs"><span class="r">R</span>&<span class="s">S</span></div>
-                    <div class="logo-text">l o g i s t i c s</div>
+            <div class="header-row">
+                <div class="logo-cell">
+                    <div class="rs-logo">
+                        <div class="rs-text">R&S</div>
+                        <div class="logistics">logistics</div>
+                    </div>
                 </div>
-                <div class="barcode-section">
-                    <div style="font-family: monospace; font-size: 24px; letter-spacing: 2px;">||||| |||| ||||| ||||</div>
-                    <div class="tracking-no">${trackingNo}</div>
+                <div class="barcode-cell">
+                    <div style="display: flex; position: absolute; right: 0; top: 0; height: 100%;">
+                        <div style="width: 4px; background: #e53935;"></div>
+                        <div style="width: 4px; background: #fb8c00;"></div>
+                        <div style="width: 4px; background: #fdd835;"></div>
+                        <div style="width: 4px; background: #43a047;"></div>
+                        <div style="width: 4px; background: #1e88e5;"></div>
+                        <div style="width: 4px; background: #3949ab;"></div>
+                        <div style="width: 4px; background: #8e24aa;"></div>
+                    </div>
+                    <div style="font-family: monospace; font-size: 28px; letter-spacing: -1px; margin: 5px 0;">||||||||||||||||||||</div>
+                    <div class="tracking">${trackingNo}</div>
                 </div>
-                <div class="info-grid" style="flex: 1;">
+                <div style="display: flex; flex-wrap: wrap; width: 220px;">
                     <div class="info-cell"><div class="info-label">Date</div><div class="info-value">${d.date || today}</div></div>
-                    <div class="info-cell"><div class="info-label">Weight :</div><div class="info-value">0.5 Kg</div></div>
+                    <div class="info-cell"><div class="info-label">Weight:</div><div class="info-value">0.5 Kg</div></div>
                     <div class="info-cell"><div class="info-label">Services</div><div class="info-value">Overnight</div></div>
-                    <div class="info-cell"><div class="info-label">Booking Type :</div><div class="info-value">Invoice</div></div>
+                    <div class="info-cell"><div class="info-label">Booking Type:</div><div class="info-value">Invoice</div></div>
                     <div class="info-cell"><div class="info-label">Origin</div><div class="info-value">Muzaffargarh</div></div>
                     <div class="info-cell"><div class="info-label">Destination</div><div class="info-value">---</div></div>
                 </div>
             </div>
             
             <!-- Shipper & Consignee -->
-            <div class="two-col">
-                <div class="col">
-                    <div class="section-title">Shipper</div>
-                    <div class="details-row"><div class="details-label">Company:</div><div class="details-value">EASY SHOPPING ZONE BY PURE LIFE FAMILY CARE</div></div>
-                    <div class="details-row"><div class="details-label">Phone No:</div><div class="details-value">03147686866</div></div>
-                    <div class="details-row"><div class="details-label">Pickup/Return Address:</div><div class="details-value">SHOP NO.2, AL SAEED MARKET KHAN..MUZAFFARGARH</div></div>
+            <div class="two-columns">
+                <div class="column">
+                    <div class="section-header">Shipper</div>
+                    <table class="details-table">
+                        <tr><td class="label">Company:</td><td class="value">EASY SHOPPING ZONE BY PURE LIFE FAMILY CARE</td></tr>
+                        <tr><td class="label">Phone No:</td><td class="value">03147686866</td></tr>
+                        <tr><td class="label">Pickup/Return Address:</td><td class="value">SHOP NO.2, AL SAEED MARKET KHAN..MUZAFFARGARH</td></tr>
+                    </table>
                 </div>
-                <div class="col">
-                    <div class="section-title">Consignee</div>
-                    <div class="details-row"><div class="details-label">Name:</div><div class="details-value">${d.customer}</div></div>
-                    <div class="details-row"><div class="details-label">Phone No :</div><div class="details-value">${d.mobile}</div></div>
-                    <div class="details-row"><div class="details-label">Address:</div><div class="details-value">${d.address}</div></div>
+                <div class="column">
+                    <div class="section-header">Consignee</div>
+                    <table class="details-table">
+                        <tr><td class="label">Name:</td><td class="value">${d.customer}</td></tr>
+                        <tr><td class="label">Phone No:</td><td class="value">${d.mobile}</td></tr>
+                        <tr><td class="label">Address:</td><td class="value">${d.address}</td></tr>
+                    </table>
                 </div>
             </div>
             
-            <!-- Order Details -->
-            <div style="display: flex; border-bottom: 1px solid #000;">
-                <div style="flex: 1; padding: 8px; border-right: 1px solid #000;"><strong>Reference No. #</strong></div>
-                <div style="flex: 1; padding: 8px; border-right: 1px solid #000;"><strong>Order ID. :</strong></div>
-                <div style="flex: 1; padding: 8px; border-right: 1px solid #000;"><strong>COD Amount</strong></div>
-                <div style="flex: 1; padding: 8px;" class="amount-box">Rs: ${d.price}.00</div>
+            <!-- Reference & COD -->
+            <div class="amount-row">
+                <div><strong>Reference No. #</strong></div>
+                <div><strong>Order ID:</strong></div>
+                <div><strong>COD Amount</strong></div>
+                <div><span class="amount-value">Rs: ${d.price}.00</span></div>
             </div>
             
-            <div class="details-row"><div class="details-label">Product Description :</div><div class="details-value">${d.product || 'N/A'}</div></div>
-            <div class="details-row"><div class="details-label">Special Instruction</div><div class="details-value">URGENT DELIVERY (PLEASE CALL THE CUSTOMER BEFORE DELIVERY)</div></div>
+            <!-- Product -->
+            <table class="details-table" style="border-top: none;">
+                <tr><td class="label">Product Description:</td><td class="value">${d.product || 'RBC-10'}</td></tr>
+                <tr><td class="label">Special Instruction</td><td class="value">URGENT DELIVERY (PLEASE CALL THE CUSTOMER BEFORE DELIVERY)</td></tr>
+            </table>
             
             <!-- Footer -->
             <div class="footer">
@@ -1276,11 +1317,11 @@ function printLeopardsRS(index) {
 }
 
 // ============================================
-// 🌉 Leopards Bridge Slip Design
+// 🌉 Leopards Bridge Slip Design (Exact Replica)
 // ============================================
 function printLeopardsBridge(index) {
     const d = allOrders[index];
-    const today = new Date().toLocaleDateString('en-GB');
+    const today = new Date().toLocaleDateString('en-GB').replace(/\//g, '/');
     const trackingNo = 'MG' + Date.now().toString().slice(-10);
     
     const html = `
@@ -1289,104 +1330,150 @@ function printLeopardsBridge(index) {
     <head>
         <meta charset="UTF-8">
         <style>
-            @page { size: A4; margin: 10mm; }
-            body { margin: 0; padding: 20px; font-family: Arial, sans-serif; font-size: 12px; }
-            * { box-sizing: border-box; }
+            @page { size: A4; margin: 5mm; }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: Arial, sans-serif; font-size: 11px; padding: 10px; background: white; }
             
-            .slip { width: 100%; max-width: 750px; margin: 0 auto; border: 2px solid #000; }
+            .slip { width: 100%; max-width: 600px; margin: 0 auto; border: 1px solid #000; }
             
-            .header { display: flex; border-bottom: 2px solid #000; }
-            .logo-section { width: 180px; padding: 10px; border-right: 1px solid #000; }
-            .bridge-logo { font-family: 'Brush Script MT', cursive; font-size: 32px; color: #2d3748; font-style: italic; }
-            .bridge-tagline { font-size: 8px; color: #718096; letter-spacing: 1px; margin-top: -5px; }
+            .header-row { display: flex; border-bottom: 1px solid #000; }
             
-            .barcode-section { width: 180px; padding: 10px; text-align: center; border-right: 1px solid #000; }
-            .tracking-no { font-size: 12px; font-weight: bold; margin-top: 5px; }
+            /* Bridge Logo */
+            .logo-cell { width: 140px; padding: 8px; border-right: 1px solid #000; position: relative; }
+            .bridge-logo {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                font-size: 28px;
+                font-weight: bold;
+                font-style: italic;
+                color: #000;
+                letter-spacing: 2px;
+            }
+            .bridge-line {
+                position: absolute;
+                top: 8px;
+                left: 5px;
+                width: 60px;
+                height: 2px;
+                background: #000;
+                transform: rotate(-25deg);
+                transform-origin: left;
+            }
+            .bridge-tagline {
+                font-size: 7px;
+                letter-spacing: 3px;
+                color: #333;
+                margin-top: 2px;
+                border-top: 1px solid #000;
+                padding-top: 2px;
+            }
             
-            .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; flex: 1; }
-            .info-cell { padding: 4px 6px; border: 1px solid #ccc; font-size: 10px; }
-            .info-label { color: #666; }
-            .info-value { font-weight: bold; }
+            .barcode-cell { width: 120px; padding: 5px; text-align: center; border-right: 1px solid #000; }
+            .tracking { font-size: 10px; font-weight: bold; margin-top: 3px; }
             
-            .qr-section { width: 80px; padding: 5px; display: flex; align-items: center; justify-content: center; }
-            .qr-placeholder { width: 70px; height: 70px; border: 1px solid #000; display: flex; align-items: center; justify-content: center; font-size: 8px; }
+            .info-grid { display: flex; flex-wrap: wrap; flex: 1; }
+            .info-cell { width: 50%; padding: 3px 5px; border: 1px solid #ccc; font-size: 9px; }
+            .info-label { color: #666; font-size: 8px; }
+            .info-value { font-weight: bold; font-size: 9px; }
             
-            .section-title { background: #e2e8f0; padding: 5px 10px; font-weight: bold; text-align: center; border: 1px solid #000; }
+            .qr-cell { width: 70px; padding: 5px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #000; }
             
-            .details-row { display: flex; border-bottom: 1px solid #ccc; }
-            .details-label { width: 100px; padding: 6px; background: #f7fafc; font-weight: bold; border-right: 1px solid #ccc; font-size: 11px; }
-            .details-value { flex: 1; padding: 6px; font-size: 11px; }
+            /* Sections */
+            .section-header { background: #e8e8e8; padding: 3px 8px; font-weight: bold; text-align: center; border: 1px solid #000; font-size: 10px; }
             
-            .two-col { display: grid; grid-template-columns: 1fr 1fr; }
-            .col { border-right: 1px solid #000; }
-            .col:last-child { border-right: none; }
+            .details-table { width: 100%; border-collapse: collapse; }
+            .details-table td { padding: 4px 6px; border: 1px solid #ccc; vertical-align: top; font-size: 10px; }
+            .details-table .label { width: 80px; font-weight: bold; background: #fafafa; font-size: 9px; }
             
-            .footer { padding: 8px; text-align: center; font-size: 10px; color: #c53030; border-top: 2px solid #000; }
+            .two-columns { display: flex; }
+            .column { flex: 1; }
+            .column:first-child { border-right: 1px solid #000; }
             
-            .amount-box { font-size: 16px; font-weight: bold; color: #2d3748; background: #edf2f7; padding: 5px; }
+            /* Amount */
+            .amount-row { display: flex; border-top: 1px solid #000; background: #f5f5f5; }
+            .amount-row > div { flex: 1; padding: 4px 6px; border-right: 1px solid #ccc; font-size: 9px; }
+            .amount-row > div:last-child { border-right: none; background: #e8f4e8; }
+            .amount-value { font-size: 14px; font-weight: bold; color: #006600; }
+            
+            .footer { padding: 6px; text-align: center; font-size: 9px; color: #c00; border-top: 1px solid #000; font-weight: bold; }
         </style>
     </head>
     <body>
         <div class="slip">
             <!-- Header -->
-            <div class="header">
-                <div class="logo-section">
+            <div class="header-row">
+                <div class="logo-cell">
+                    <div class="bridge-line"></div>
                     <div class="bridge-logo">Bridge</div>
                     <div class="bridge-tagline">TOWARDS FUTURE</div>
                 </div>
-                <div class="barcode-section">
-                    <div style="font-family: monospace; font-size: 20px; letter-spacing: 1px;">||||| |||| |||||</div>
-                    <div class="tracking-no">${trackingNo}</div>
+                <div class="barcode-cell">
+                    <div style="font-family: monospace; font-size: 22px; letter-spacing: -1px;">|||||||||||||||||</div>
+                    <div class="tracking">${trackingNo}</div>
                 </div>
                 <div class="info-grid">
-                    <div class="info-cell"><span class="info-label">Date</span><br><span class="info-value">${d.date || today}</span></div>
-                    <div class="info-cell"><span class="info-label">Weight :</span><br><span class="info-value">0.5 Kg</span></div>
-                    <div class="info-cell"><span class="info-label">Services</span><br><span class="info-value">Overnight</span></div>
-                    <div class="info-cell"><span class="info-label">Booking Type :</span><br><span class="info-value">Invoice</span></div>
-                    <div class="info-cell"><span class="info-label">Origin</span><br><span class="info-value">Muzaffargarh</span></div>
-                    <div class="info-cell"><span class="info-label">Destination</span><br><span class="info-value">---</span></div>
+                    <div class="info-cell"><div class="info-label">Date</div><div class="info-value">${d.date || today}</div></div>
+                    <div class="info-cell"><div class="info-label">Weight:</div><div class="info-value">0.5 Kg</div></div>
+                    <div class="info-cell"><div class="info-label">Services</div><div class="info-value">Overnight</div></div>
+                    <div class="info-cell"><div class="info-label">Booking Type:</div><div class="info-value">Invoice</div></div>
+                    <div class="info-cell"><div class="info-label">Origin</div><div class="info-value">Muzaffargarh</div></div>
+                    <div class="info-cell"><div class="info-label">Destination</div><div class="info-value">---</div></div>
                 </div>
-                <div class="qr-section">
-                    <div class="qr-placeholder">
-                        <svg viewBox="0 0 100 100" width="60" height="60">
-                            <rect x="10" y="10" width="20" height="20" fill="#000"/>
-                            <rect x="70" y="10" width="20" height="20" fill="#000"/>
-                            <rect x="10" y="70" width="20" height="20" fill="#000"/>
-                            <rect x="40" y="40" width="20" height="20" fill="#000"/>
-                            <rect x="15" y="15" width="10" height="10" fill="#fff"/>
-                            <rect x="75" y="15" width="10" height="10" fill="#fff"/>
-                            <rect x="15" y="75" width="10" height="10" fill="#fff"/>
-                        </svg>
-                    </div>
+                <div class="qr-cell">
+                    <svg viewBox="0 0 100 100" width="55" height="55">
+                        <!-- QR Code Pattern -->
+                        <rect x="0" y="0" width="100" height="100" fill="white"/>
+                        <rect x="5" y="5" width="25" height="25" fill="black"/>
+                        <rect x="10" y="10" width="15" height="15" fill="white"/>
+                        <rect x="13" y="13" width="9" height="9" fill="black"/>
+                        <rect x="70" y="5" width="25" height="25" fill="black"/>
+                        <rect x="75" y="10" width="15" height="15" fill="white"/>
+                        <rect x="78" y="13" width="9" height="9" fill="black"/>
+                        <rect x="5" y="70" width="25" height="25" fill="black"/>
+                        <rect x="10" y="75" width="15" height="15" fill="white"/>
+                        <rect x="13" y="78" width="9" height="9" fill="black"/>
+                        <rect x="35" y="5" width="5" height="5" fill="black"/>
+                        <rect x="45" y="5" width="5" height="5" fill="black"/>
+                        <rect x="55" y="5" width="5" height="5" fill="black"/>
+                        <rect x="35" y="35" width="30" height="30" fill="black"/>
+                        <rect x="40" y="40" width="20" height="20" fill="white"/>
+                        <rect x="45" y="45" width="10" height="10" fill="black"/>
+                    </svg>
                 </div>
             </div>
             
             <!-- Shipper & Consignee -->
-            <div class="two-col">
-                <div class="col">
-                    <div class="section-title">Shipper</div>
-                    <div class="details-row"><div class="details-label">Company:</div><div class="details-value">EASY SHOPPING ZONE KHAN GARH</div></div>
-                    <div class="details-row"><div class="details-label">Phone No:</div><div class="details-value">0311-7686862</div></div>
-                    <div class="details-row"><div class="details-label">Pickup Address:</div><div class="details-value">NEAR HBL BANK KHAN GARH (MUZAFFARGARH)</div></div>
+            <div class="two-columns">
+                <div class="column">
+                    <div class="section-header">Shipper</div>
+                    <table class="details-table">
+                        <tr><td class="label">Company:</td><td>EASY SHOPPING ZONE KHAN GARH</td></tr>
+                        <tr><td class="label">Phone No:</td><td>0311-7686862</td></tr>
+                        <tr><td class="label">Pickup Address:</td><td>NEAR HBL BANK KHAN GARH (MUZAFFARGARH)</td></tr>
+                    </table>
                 </div>
-                <div class="col">
-                    <div class="section-title">Consignee</div>
-                    <div class="details-row"><div class="details-label">Name:</div><div class="details-value">${d.customer}</div></div>
-                    <div class="details-row"><div class="details-label">Phone No :</div><div class="details-value">${d.mobile}</div></div>
-                    <div class="details-row"><div class="details-label">Address:</div><div class="details-value">${d.address}</div></div>
+                <div class="column">
+                    <div class="section-header">Consignee</div>
+                    <table class="details-table">
+                        <tr><td class="label">Name:</td><td>${d.customer}</td></tr>
+                        <tr><td class="label">Phone No:</td><td>${d.mobile}</td></tr>
+                        <tr><td class="label">Address:</td><td>${d.address}</td></tr>
+                    </table>
                 </div>
             </div>
             
-            <!-- Order Details -->
-            <div style="display: flex; border-bottom: 1px solid #000; background: #f7fafc;">
-                <div style="flex: 1; padding: 6px; border-right: 1px solid #ccc;"><strong>Reference No. #</strong></div>
-                <div style="flex: 1; padding: 6px; border-right: 1px solid #ccc;"><strong>Order ID. :</strong></div>
-                <div style="flex: 1; padding: 6px; border-right: 1px solid #ccc;"><strong>COD Amount</strong></div>
-                <div style="flex: 1; padding: 6px;" class="amount-box">Rs: ${d.price}.00</div>
+            <!-- Reference & COD -->
+            <div class="amount-row">
+                <div><strong>Reference No. #</strong></div>
+                <div><strong>Order ID:</strong></div>
+                <div><strong>COD Amount</strong></div>
+                <div><span class="amount-value">Rs: ${d.price}.00</span></div>
             </div>
             
-            <div class="details-row"><div class="details-label">Product Description :</div><div class="details-value">${d.product || 'N/A'}</div></div>
-            <div class="details-row"><div class="details-label">Special Instruction</div><div class="details-value">URGENT DELIVERY (PLEASE CALL THE CUSTOMER BEFORE DELIVERY)</div></div>
+            <!-- Product -->
+            <table class="details-table" style="border-top: none;">
+                <tr><td class="label">Product Description:</td><td>${d.product || 'RBC-10'}</td></tr>
+                <tr><td class="label">Special Instruction</td><td>URGENT DELIVERY (PLEASE CALL THE CUSTOMER BEFORE DELIVERY)</td></tr>
+            </table>
             
             <!-- Footer -->
             <div class="footer">
