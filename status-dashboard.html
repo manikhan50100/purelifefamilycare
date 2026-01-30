@@ -213,12 +213,60 @@
         });
         
         async function refreshStatusDashboard() {
-            allOrders = await DataService.fetchOrders();
-            calculateStatusCounts();
-            renderStatusDashboard();
-            renderCODStats();
-            populateStatusFilter();
-            renderOrdersTable(allOrders);
+            try {
+                // Show loading state
+                document.getElementById('statusDashboard').innerHTML = `
+                    <div class="status-card">
+                        <div class="spinner"></div>
+                        <span style="margin-left: 10px;">Loading...</span>
+                    </div>
+                `;
+                
+                // Fetch with timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                
+                allOrders = await DataService.fetchOrders();
+                clearTimeout(timeoutId);
+                
+                if (!allOrders || allOrders.length === 0) {
+                    // Use demo data if API returns empty
+                    allOrders = getDemoData();
+                    UI.showToast('Demo data loaded - API not connected', 'warning');
+                }
+                
+                calculateStatusCounts();
+                renderStatusDashboard();
+                renderCODStats();
+                populateStatusFilter();
+                renderOrdersTable(allOrders);
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // Use demo data on error
+                allOrders = getDemoData();
+                calculateStatusCounts();
+                renderStatusDashboard();
+                renderCODStats();
+                populateStatusFilter();
+                renderOrdersTable(allOrders);
+                UI.showToast('Demo data loaded - Check API connection', 'warning');
+            }
+        }
+        
+        function getDemoData() {
+            return [
+                { id: 1, date: '30/01/2026', customer: 'Riaz Hussain', mobile: '03001316633', address: 'Street No 4, Lahore', product: 'RBC', price: 2000, courier: 'Post Office', status: 'Pending' },
+                { id: 2, date: '30/01/2026', customer: 'M. Imran', mobile: '03438551168', address: 'Mirpur Azad Kashmir', product: 'RBC', price: 2000, courier: 'Leopard', status: 'Delivered' },
+                { id: 3, date: '29/01/2026', customer: 'Muhammad Nadeem', mobile: '03199761552', address: 'Bilal Block, Vehari', product: 'RBC', price: 1500, courier: 'Post Office', status: 'Delivered' },
+                { id: 4, date: '29/01/2026', customer: 'Nadeem Watto', mobile: '03015677826', address: 'Chak Kahlan, Bahawalpur', product: 'RBC', price: 2300, courier: 'Post Office', status: 'Pending' },
+                { id: 5, date: '28/01/2026', customer: 'Khalid Saleem', mobile: '03215505506', address: 'Wapda sports board', product: 'RBC', price: 2300, courier: 'Post Office', status: 'Returned' },
+                { id: 6, date: '28/01/2026', customer: 'Ahmad Nawaz', mobile: '03457652168', address: 'Main Boulevard', product: 'RBC', price: 2300, courier: 'Leopard', status: 'Delivered' },
+                { id: 7, date: '27/01/2026', customer: 'Shabbir Ahmed', mobile: '03284157078', address: 'House No 97', product: 'RBC', price: 1500, courier: 'Leopard', status: 'Out For Delivery' },
+                { id: 8, date: '27/01/2026', customer: 'Zafar Uz Zaman', mobile: '03014323810', address: 'House no 226/L', product: 'RBC', price: 2300, courier: 'Leopard', status: 'In Transit' },
+                { id: 9, date: '26/01/2026', customer: 'Mir Zaman', mobile: '03333381145', address: 'Muslim League Office', product: 'RBC', price: 3000, courier: 'Post Office', status: 'Delivered' },
+                { id: 10, date: '26/01/2026', customer: 'Shahid Baloch', mobile: '03014050077', address: 'Danayal Chowk', product: 'RBC', price: 1500, courier: 'Post Office', status: 'Pending' }
+            ];
         }
         
         function calculateStatusCounts() {

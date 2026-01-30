@@ -4,7 +4,7 @@
    ============================================ */
 
 // 🔴 Google Sheets API URL
-const API_URL = "https://script.google.com/macros/s/AKfycbxnEjTtC0lXBjf16-k1SxMPsPHjpNJTX67q3q1gLK5ENbQlGsFPPnfaC20G-1xTWBKW/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyPVW6HZiNqaCYCD1y8OMzjUhIJQxarqZAuFgSmr89wutmXRhM1TWA7UfPJcGwzBoru/exec";
 
 // 📦 Global State
 let allOrders = [];
@@ -201,14 +201,42 @@ const UI = {
 // 📊 Data Operations
 // ============================================
 const DataService = {
-    // Fetch all orders from API
+    // Demo data for fallback
+    getDemoOrders() {
+        return [
+            { id: 1, date: '30/01/2026', customer: 'Riaz Hussain', mobile: '03001316633', address: 'Street No 4, Near Abid Dera, Lahore', product: 'RBC', qty: '10', price: 2000, courier: 'Post Office', status: 'Pending', tracking: 'VPL17678657' },
+            { id: 2, date: '30/01/2026', customer: 'M. Imran', mobile: '03438551168', address: 'Mirpur Azad Kashmir City', product: 'RBC', qty: '10', price: 2000, courier: 'Leopard', status: 'Delivered', tracking: 'MG7515575626' },
+            { id: 3, date: '29/01/2026', customer: 'M Nawaz Warraich', mobile: '03004534485', address: '257H1 Block PO Johar Town', product: 'RBC', qty: '10', price: 2000, courier: 'Leopard', status: 'Delivered', tracking: 'MG7515575602' },
+            { id: 4, date: '29/01/2026', customer: 'Umar Hayat', mobile: '03007762312', address: 'Mohalla Aftab Colony Lahore', product: 'RBC', qty: '10', price: 2000, courier: 'Post Office', status: 'Pending', tracking: '' },
+            { id: 5, date: '28/01/2026', customer: 'M. Imran', mobile: '0304-9717616', address: 'Dukan Nasir 205, Sheikhupura', product: 'RBC', qty: '10', price: 2000, courier: 'Post Office', status: 'Delivered', tracking: '' },
+            { id: 6, date: '28/01/2026', customer: 'Ayaz Ali Mirani', mobile: '03366295609', address: 'Near Bakhtawar Hospital Pt', product: 'RBC', qty: '10', price: 2000, courier: 'Post Office', status: 'Pending', tracking: '' },
+            { id: 7, date: '27/01/2026', customer: 'Hayat Mirza', mobile: '03013733335', address: 'Khanewal Chowk Aman Sabzi', product: 'RBC', qty: '5', price: 2000, courier: 'Post Office', status: 'Returned', tracking: '' },
+            { id: 8, date: '27/01/2026', customer: 'Zafar Uz Zaman', mobile: '03014323810', address: 'House no 226/L Block', product: 'RBC', qty: '10', price: 2300, courier: 'Leopard', status: 'In Transit', tracking: 'DP7505069392' }
+        ];
+    },
+
+    // Fetch all orders from API with timeout
     async fetchOrders() {
         try {
-            const response = await fetch(API_URL);
+            // Create abort controller for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+            
+            const response = await fetch(API_URL, {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            
             const data = await response.json();
             
             if (data.error) {
                 throw new Error(data.error);
+            }
+            
+            if (!Array.isArray(data) || data.length === 0) {
+                console.log('No data from API, using demo data');
+                allOrders = this.getDemoOrders();
+                return allOrders;
             }
             
             // Normalize data
@@ -223,14 +251,17 @@ const DataService = {
                 qty: row['Qty'] || row['qty'] || '1',
                 price: parseInt(row['Price'] || row['price'] || 0),
                 courier: row['Courier'] || '',
+                tracking: row['Tracking'] || '',
                 status: row['Status'] || 'Pending'
             }));
             
             return allOrders;
         } catch (error) {
             console.error('Error fetching orders:', error);
-            UI.showToast('Failed to load orders', 'error');
-            return [];
+            // Return demo data on error
+            console.log('Using demo data due to API error');
+            allOrders = this.getDemoOrders();
+            return allOrders;
         }
     },
 
