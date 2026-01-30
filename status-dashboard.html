@@ -175,7 +175,7 @@
     
     <script src="js/app.js"></script>
     <script>
-        let allOrders = [];
+        // allOrders is already declared in app.js
         let statusCounts = {};
         
         // Status Configuration with icons and colors
@@ -213,45 +213,69 @@
         });
         
         async function refreshStatusDashboard() {
+            // Show loading state
+            document.getElementById('statusDashboard').innerHTML = `
+                <div class="status-card">
+                    <div class="spinner"></div>
+                    <span style="margin-left: 10px;">Loading...</span>
+                </div>
+            `;
+            
             try {
-                // Show loading state
-                document.getElementById('statusDashboard').innerHTML = `
-                    <div class="status-card">
-                        <div class="spinner"></div>
-                        <span style="margin-left: 10px;">Loading...</span>
-                    </div>
-                `;
+                console.log('Fetching orders from API...');
                 
-                // Fetch with timeout
+                // Direct fetch with timeout
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                const timeoutId = setTimeout(() => {
+                    controller.abort();
+                    console.log('API timeout - using demo data');
+                }, 8000);
                 
-                allOrders = await DataService.fetchOrders();
+                const response = await fetch(API_URL, { signal: controller.signal });
                 clearTimeout(timeoutId);
                 
-                if (!allOrders || allOrders.length === 0) {
-                    // Use demo data if API returns empty
-                    allOrders = getDemoData();
-                    UI.showToast('Demo data loaded - API not connected', 'warning');
+                const data = await response.json();
+                console.log('API Response:', data.length, 'orders');
+                
+                if (data.error) {
+                    throw new Error(data.error);
                 }
                 
-                calculateStatusCounts();
-                renderStatusDashboard();
-                renderCODStats();
-                populateStatusFilter();
-                renderOrdersTable(allOrders);
+                if (Array.isArray(data) && data.length > 0) {
+                    // Map API data to our format
+                    allOrders = data.map((row, index) => ({
+                        id: index + 1,
+                        date: row['Date'] || row['date'] || '',
+                        customer: row['Customer'] || row['Name'] || 'Unknown',
+                        mobile: row['Mobile'] || row['Mobile No'] || '',
+                        address: row['Address'] || '',
+                        product: row['Product'] || '',
+                        qty: row['Qty'] || row['Quantity'] || 1,
+                        price: parseInt(row['Price'] || 0),
+                        courier: row['Courier'] || row['Delivery'] || '',
+                        tracking: row['Tracking'] || row['Tracking NO'] || '',
+                        status: row['Status'] || 'Pending'
+                    }));
+                    console.log('Mapped orders:', allOrders.length);
+                    UI.showToast(`${allOrders.length} orders loaded!`, 'success');
+                } else {
+                    console.log('No data from API, using demo data');
+                    allOrders = getDemoData();
+                    UI.showToast('Demo data loaded', 'warning');
+                }
                 
             } catch (error) {
-                console.error('Error loading data:', error);
-                // Use demo data on error
+                console.error('Error fetching orders:', error);
                 allOrders = getDemoData();
-                calculateStatusCounts();
-                renderStatusDashboard();
-                renderCODStats();
-                populateStatusFilter();
-                renderOrdersTable(allOrders);
-                UI.showToast('Demo data loaded - Check API connection', 'warning');
+                UI.showToast('Demo data loaded - API error', 'warning');
             }
+            
+            // Render dashboard
+            calculateStatusCounts();
+            renderStatusDashboard();
+            renderCODStats();
+            populateStatusFilter();
+            renderOrdersTable(allOrders);
         }
         
         function getDemoData() {
